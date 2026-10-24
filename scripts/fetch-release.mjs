@@ -20,8 +20,13 @@ const MATCHERS = [
   ["macosIntel", /_x64\.dmg$/i],
   ["windowsX64", /_x64-setup\.exe$/i],
   ["windowsMSI", /_x64_en-US\.msi$/i],
-  ["linuxDeb", /(amd64|x86_64|arm64)?[._-]?[^/]*\.deb$/i],
+  ["linuxDeb", /\.deb$/i],
   ["linuxRpm", /\.rpm$/i],
+  // Longer ABIs first: x86_64 also matches /x86/, arm64 before armeabi.
+  ["androidArm64", /_arm64-v8a\.apk$/i],
+  ["androidArmv7", /_armeabi-v7a\.apk$/i],
+  ["androidX86_64", /_x86_64\.apk$/i],
+  ["androidX86", /_x86\.apk$/i],
   ["checksums", /^SHA256SUMS$/i],
 ];
 

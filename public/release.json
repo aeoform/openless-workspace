@@ -4,13 +4,33 @@
   "version": "2.0.1",
   "publishedAt": "2026-10-16T12:40:48Z",
   "htmlUrl": "https://github.com/Open-Less/openless/releases/tag/v2.0.1-tauri",
-  "fetchedAt": "2026-10-24T16:52:42.219Z",
+  "fetchedAt": "2026-10-24T16:59:12.524Z",
   "source": "github-api",
   "assets": {
     "macosArm": {
       "name": "OpenLess_2.0.1+build.20261016_aarch64.dmg",
       "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_aarch64.dmg",
       "size": 28983090
+    },
+    "androidX86_64": {
+      "name": "OpenLess_2.0.1+build.20261016_x86_64.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x86_64.apk",
+      "size": 33545006
+    },
+    "androidArm64": {
+      "name": "OpenLess_2.0.1+build.20261016_arm64-v8a.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_arm64-v8a.apk",
+      "size": 30286493
+    },
+    "androidArmv7": {
+      "name": "OpenLess_2.0.1+build.20261016_armeabi-v7a.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_armeabi-v7a.apk",
+      "size": 23960463
+    },
+    "androidX86": {
+      "name": "OpenLess_2.0.1+build.20261016_x86.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x86.apk",
+      "size": 35457359
     },
     "macosIntel": {
       "name": "OpenLess_2.0.1+build.20261016_x64.dmg",

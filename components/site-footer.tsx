@@ -51,8 +51,8 @@ export function SiteFooter() {
         <div className="ol-footer-bottom">
           <span>{t.footer.rights}</span>
           <span className="ol-footer-meta">
-            <span>macOS · Windows · Linux</span>
-            <span className="ol-footer-status">● MIT</span>
+            <span>macOS · Windows · Linux · Android</span>
+            <span className="ol-footer-status">● AGPL-3.0</span>
           </span>
         </div>
       </div>

@@ -10,7 +10,7 @@ export const i18nContent = {
     },
     hero: {
       cta_download: "下载 macOS / Windows / Linux",
-      cta_version: "macOS · Windows · Linux · MIT",
+      cta_version: "macOS · Windows · Linux · Android · AGPL-3.0",
       vision:
         "开源、本地优先、属于你的语音输入。\n按下热键，说话，在光标处获得一段打磨干净的提示词。",
     },
@@ -33,7 +33,7 @@ export const i18nContent = {
         {
           k: "完全透明",
           t: "代码全部开放",
-          d: "MIT 协议。从热键监听、音频采集、光标注入到 prompt 模板，没有黑盒。",
+          d: "AGPL-3.0-only 协议（1.x 版本为 MIT）。从热键监听、音频采集、光标注入到 prompt 模板，没有黑盒。",
         },
         {
           k: "只做一件事",
@@ -91,6 +91,21 @@ export const i18nContent = {
         },
       ],
     },
+    platforms: {
+      eyebrow: "全部平台",
+      title: "六个平台，同一个版本号。",
+      sub: "按你的系统推荐安装包，也可以直接下载其他平台的版本 —— 同一个 GitHub Release、同一份 SHA256SUMS。",
+      recommended: "推荐",
+      download: "下载",
+      allReleases: "所有版本",
+      latest: "最新版",
+      notAvailable: "该平台安装包尚未随此版本发布",
+      otherBuilds: "其他构建",
+      checksums: "SHA256SUMS",
+      macArchNote: "浏览器无法报告芯片型号时默认选 Apple Silicon；Intel 机型请下载另一个包。",
+      harmonyPending: "鸿蒙宿主开发中，暂无公开安装包",
+      harmonyLink: "查看进度",
+    },
     roadmap: {
       eyebrow: "Roadmap",
       title: "让所有人能够通过自然语言进行聊天。",
@@ -138,6 +153,7 @@ export const i18nContent = {
       published: "发布于",
       allReleases: "所有版本",
       checksums: "SHA256 校验",
+      allPlatforms: "所有平台安装包",
       detectedHint: "已按当前系统选择安装包。",
       steps: [
         {
@@ -162,7 +178,7 @@ export const i18nContent = {
     },
     cta: {
       title: "你的下一段 Prompt，\n用嘴写。",
-      sub: "MIT 协议，免费下载，代码全开。",
+      sub: "AGPL-3.0-only 开源，免费下载，代码全开。",
       btn1: "下载 macOS / Windows / Linux",
       btn2: "Star on GitHub",
     },
@@ -174,9 +190,9 @@ export const i18nContent = {
       links: {
         product: ["下载", "文档", "Roadmap", "Changelog"],
         resource: ["GitHub", "USAGE.md", "技术架构", "对比"],
-        community: ["Issues", "Discussions", "Releases", "MIT 协议"],
+        community: ["Issues", "Discussions", "Releases", "AGPL-3.0"],
       },
-      rights: "© 2026 OpenLess · 由社区维护 · MIT License",
+      rights: "© 2026 OpenLess · 由社区维护 · AGPL-3.0-only",
     },
     notFound: {
       title: "这里没有内容。",
@@ -194,7 +210,7 @@ export const i18nContent = {
     },
     hero: {
       cta_download: "Download for macOS / Windows / Linux",
-      cta_version: "macOS · Windows · Linux · MIT",
+      cta_version: "macOS · Windows · Linux · Android · AGPL-3.0",
       vision:
         "Open-source, local-first voice input that belongs to you.\nPress a hotkey, talk, get a polished prompt at your cursor.",
     },
@@ -217,7 +233,7 @@ export const i18nContent = {
         {
           k: "Transparent",
           t: "Every byte is open",
-          d: "MIT licensed. From hotkey taps and audio capture to cursor insertion and prompt templates — no black boxes.",
+          d: "AGPL-3.0-only (1.x releases were MIT). From hotkey taps and audio capture to cursor insertion and prompt templates — no black boxes.",
         },
         {
           k: "One thing well",
@@ -275,6 +291,21 @@ export const i18nContent = {
         },
       ],
     },
+    platforms: {
+      eyebrow: "All platforms",
+      title: "Six platforms, one version number.",
+      sub: "We preselect your installer, but every other platform is downloadable from the same GitHub release with the same SHA256SUMS.",
+      recommended: "Recommended",
+      download: "Download",
+      allReleases: "All releases",
+      latest: "Latest",
+      notAvailable: "No package for this platform in the current release yet",
+      otherBuilds: "Other builds",
+      checksums: "SHA256SUMS",
+      macArchNote: "Browsers cannot report the chip, so Apple Silicon is preselected — Intel Macs should take the other file.",
+      harmonyPending: "HarmonyOS host is in development; no public package yet",
+      harmonyLink: "See progress",
+    },
     roadmap: {
       eyebrow: "Roadmap",
       title: "Let everyone chat in natural language.",
@@ -322,6 +353,7 @@ export const i18nContent = {
       published: "Published",
       allReleases: "All releases",
       checksums: "SHA256 checksums",
+      allPlatforms: "All platform installers",
       detectedHint: "Installer selected for the system you are using.",
       steps: [
         {
@@ -346,7 +378,7 @@ export const i18nContent = {
     },
     cta: {
       title: "Write your next prompt\nwith your mouth.",
-      sub: "MIT licensed. Free to download. Code all open.",
+      sub: "AGPL-3.0-only. Free to download. Code all open.",
       btn1: "Download for macOS / Windows / Linux",
       btn2: "Star on GitHub",
     },
@@ -358,9 +390,9 @@ export const i18nContent = {
       links: {
         product: ["Download", "Docs", "Roadmap", "Changelog"],
         resource: ["GitHub", "USAGE.md", "Architecture", "Compare"],
-        community: ["Issues", "Discussions", "Releases", "MIT License"],
+        community: ["Issues", "Discussions", "Releases", "AGPL-3.0"],
       },
-      rights: "© 2026 OpenLess · Maintained by the community · MIT License",
+      rights: "© 2026 OpenLess · Maintained by the community · AGPL-3.0-only",
     },
     notFound: {
       title: "Nothing here.",

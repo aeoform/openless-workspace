@@ -1,6 +1,18 @@
 import { useSyncExternalStore } from "react";
+import { staticRelease } from "@/lib/release-static";
 
-export type AssetSlot = "macosArm" | "macosIntel" | "windowsX64" | "windowsMSI" | "linuxDeb" | "linuxRpm" | "checksums";
+export type AssetSlot =
+  | "macosArm"
+  | "macosIntel"
+  | "windowsX64"
+  | "windowsMSI"
+  | "linuxDeb"
+  | "linuxRpm"
+  | "androidArm64"
+  | "androidArmv7"
+  | "androidX86_64"
+  | "androidX86"
+  | "checksums";
 
 export type ReleaseAsset = { name: string; url: string; size: number };
 
@@ -15,7 +27,7 @@ export type ReleaseInfo = {
   assets: Partial<Record<AssetSlot, ReleaseAsset>>;
 };
 
-let snapshot: ReleaseInfo | null = null;
+let snapshot: ReleaseInfo | null = staticRelease;
 let started = false;
 const listeners = new Set<() => void>();
 
@@ -31,6 +43,7 @@ function start() {
     .then((response) => (response.ok ? response.json() : null))
     .then((data: ReleaseInfo | null) => {
       if (!data || typeof data !== "object") return;
+      if (JSON.stringify(data) === JSON.stringify(snapshot)) return;
       snapshot = data;
       emit();
     })
@@ -46,8 +59,8 @@ function subscribe(listener: () => void) {
 }
 
 const getSnapshot = () => snapshot;
-/** Server render and hydration both see no release data, so markup matches. */
-const getServerSnapshot = () => null;
+/** Server render and hydration both use the build-time snapshot, so markup matches. */
+const getServerSnapshot = () => staticRelease;
 
 export function useLatestRelease(): ReleaseInfo | null {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);

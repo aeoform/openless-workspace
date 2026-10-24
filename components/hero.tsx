@@ -13,7 +13,7 @@ export function Hero() {
   const { primary, version } = useDownloadTargets();
   const ctaLabel = primary ? `${t.download.prefix} ${primary.label}` : t.hero.cta_download;
   const ctaHref = primary?.href ?? "#download";
-  const meta = version ? `v${version} · macOS · Windows · Linux · MIT` : t.hero.cta_version;
+  const meta = version ? `v${version} · macOS · Windows · Linux · Android · AGPL-3.0` : t.hero.cta_version;
 
   return (
     <section className="ol-section first hero">

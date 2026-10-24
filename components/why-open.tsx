@@ -60,7 +60,7 @@ export function WhyOpen() {
 
             {/* offset decorative elements */}
             <span className="why-decor why-decor-a ol-serif" aria-hidden="true">local · open · yours</span>
-            <span className="why-decor why-decor-b ol-mono" aria-hidden="true">MIT</span>
+            <span className="why-decor why-decor-b ol-mono" aria-hidden="true">AGPL</span>
             <span className="why-decor why-decor-c" aria-hidden="true"><WhyIcon i={0} size={36} /></span>
             <span className="why-decor why-decor-d" aria-hidden="true"><WhyIcon i={2} size={28} /></span>
           </aside>

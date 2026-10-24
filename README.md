@@ -2,6 +2,10 @@
 
 Next.js 静态官网，中英文切换和浏览器动画不依赖服务端。风格市场、云同步服务独立部署，不包含在本项目。
 
+## 许可证
+
+本站描述的产品以 **AGPL-3.0-only** 发布（1.x 版本曾使用 MIT）。页面文案、页脚与结构化数据均按此表述，勿改回 MIT。
+
 ## 下载链接如何跟随最新版
 
 浏览器不能可靠地直接调用 GitHub API（CORS、限流、无服务端），所以版本信息在**构建时**落成静态文件：
@@ -10,7 +14,8 @@ Next.js 静态官网，中英文切换和浏览器动画不依赖服务端。风
 2. 该脚本作为 `prebuild` 自动执行，GitHub Actions 与阿里云 ESA 构建都会跑；`.github/workflows/refresh-release.yml` 另外每 6 小时刷新快照并提交。
 3. 拉取失败时保留已提交的快照，构建不会失败；没有快照时退回 `releases/latest`。
 4. 前端读取同源 `/release.json`（无需跨域），按 `navigator.userAgent` / `userAgentData` 判断系统和架构，首屏按钮直接指向对应安装包。Safari、Firefox 拿不到 CPU 架构，macOS 会同时提供 Apple Silicon 与 Intel 两个包。
-5. Linux 的 deb/rpm 只在 Release 里确实存在时才出现，不存在时按钮回落到版本页。
+5. 下载区列出 6 个平台（macOS Apple Silicon / macOS Intel / Windows / Linux deb·rpm / Android / HarmonyOS），检测到的平台标「推荐」，其余平台同样可以直接下载；Release 里缺失的包会显示为暂未发布，Android 还提供 armeabi-v7a、x86_64、x86 三个 ABI。
+6. 构建会把 `public/release.json` 直接打进 HTML，首屏就带真实安装包链接，运行时再刷新一次。
 
 手动刷新快照：`pnpm release:sync`。
 

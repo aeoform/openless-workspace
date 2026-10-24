@@ -8,7 +8,7 @@ import { REPO_URL } from "@/lib/site";
 const SITE_URL = "https://openless.top";
 const TITLE = "OpenLess · 开源跨平台语音输入，把你的话变成可用的 AI Prompt";
 const DESCRIPTION =
-  "OpenLess — open-source voice input for macOS, Windows and Linux. Press a hotkey, speak, get polished text at your cursor. MIT licensed.";
+  "OpenLess — open-source voice input for macOS, Windows and Linux. Press a hotkey, speak, get polished text at your cursor. AGPL-3.0-only licensed.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -29,7 +29,8 @@ export const metadata: Metadata = {
     "Windows",
     "Linux",
     "open source",
-    "MIT",
+    "AGPL-3.0",
+    "open source",
   ],
   authors: [{ name: "OpenLess contributors", url: REPO_URL }],
   creator: "OpenLess contributors",
@@ -62,10 +63,10 @@ const JSON_LD = {
   "@type": "SoftwareApplication",
   name: "OpenLess",
   applicationCategory: "UtilitiesApplication",
-  operatingSystem: "macOS, Windows, Linux",
+  operatingSystem: "macOS, Windows, Linux, Android",
   url: SITE_URL,
   codeRepository: REPO_URL,
-  license: "https://github.com/Open-Less/openless/blob/main/LICENSE",
+  license: "https://www.gnu.org/licenses/agpl-3.0.html",
   description: DESCRIPTION,
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };

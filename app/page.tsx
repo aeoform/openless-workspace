@@ -7,6 +7,7 @@ import { Scenarios } from "@/components/scenarios";
 import { Roadmap } from "@/components/roadmap";
 import { DownloadSteps } from "@/components/download-steps";
 import { BigCTA } from "@/components/big-cta";
+import { PlatformGrid } from "@/components/platform-grid";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
         <Scenarios />
         <Roadmap />
         <DownloadSteps />
+        <PlatformGrid />
         <BigCTA />
       </main>
       <SiteFooter />

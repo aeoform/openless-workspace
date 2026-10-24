@@ -73,6 +73,24 @@ export function LinuxIcon({ size = 14 }: SvgProps) {
   );
 }
 
+export function AndroidIcon({ size = 14 }: SvgProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M6 9h12a1 1 0 011 1v7a2 2 0 01-2 2h-1v3h-2v-3h-3v3H9v-3H7a2 2 0 01-2-2v-7a1 1 0 011-1zm-2.5.5a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0v-6zm14 0a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0v-6zM8.2 7.2l-1-1.7a.4.4 0 01.7-.4l1 1.8a6.9 6.9 0 016.2 0l1-1.8a.4.4 0 01.7.4l-1 1.7A6.6 6.6 0 0118 8.6H6a6.6 6.6 0 012.2-1.4zM9.3 5.9a.6.6 0 100 1.2.6.6 0 000-1.2zm5.4 0a.6.6 0 100 1.2.6.6 0 000-1.2z" />
+    </svg>
+  );
+}
+
+export function HarmonyIcon({ size = 14 }: SvgProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+      <path d="M4 15c2.2-4.6 4.4-6.9 8-6.9 3.4 0 5.6 2.1 8 6.9" />
+      <path d="M7.4 18.2c1.3-2.4 2.7-3.6 4.6-3.6s3.3 1.2 4.6 3.6" />
+      <circle cx="12" cy="5.2" r="1.6" />
+    </svg>
+  );
+}
+
 export function CheckIcon({ size = 14 }: SvgProps) {
   return (
     <svg

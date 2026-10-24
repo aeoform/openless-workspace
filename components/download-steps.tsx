@@ -42,7 +42,7 @@ function StepArt({ index }: { index: number }) {
 
 export function DownloadSteps() {
   const { t } = useI18n();
-  const { targets, version, publishedAt, href, checksums, primary } = useDownloadTargets();
+  const { version, publishedAt, href, checksums, primary } = useDownloadTargets();
   const wrapRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -139,19 +139,21 @@ export function DownloadSteps() {
                   </p>
                 )}
                 <div className="dl-actions">
-                  {targets.map((target) => (
-                    <a
-                      key={target.id}
-                      className={`ol-btn ${target.recommended ? "ol-btn-primary" : "ol-btn-ghost"}`}
-                      href={target.href}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <TargetIcon slot={target.id} />
-                      {target.label}
-                      {target.recommended && <span className="dl-badge">{t.download.recommended}</span>}
+                  {primary ? (
+                    <a className="ol-btn ol-btn-primary" href={primary.href} target="_blank" rel="noreferrer">
+                      <TargetIcon slot={primary.id} />
+                      {primary.label}
+                      <span className="dl-badge">{t.download.recommended}</span>
                     </a>
-                  ))}
+                  ) : (
+                    <a className="ol-btn ol-btn-primary" href={href} target="_blank" rel="noreferrer">
+                      <DownloadIcon />
+                      {t.download.allReleases}
+                    </a>
+                  )}
+                  <a className="ol-btn ol-btn-ghost" href="#platforms">
+                    {t.download.allPlatforms}
+                  </a>
                 </div>
                 <div className="dl-links">
                   <a href={href} target="_blank" rel="noreferrer">
