@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://openless.top/sitemap.xml

@@ -59,10 +59,10 @@ export function WhyOpen() {
             <p className="why-left-desc">{t.why.sub}</p>
 
             {/* offset decorative elements */}
-            <span className="why-decor why-decor-a ol-serif">local · open · yours</span>
-            <span className="why-decor why-decor-b ol-mono">MIT</span>
-            <span className="why-decor why-decor-c"><WhyIcon i={0} size={36} /></span>
-            <span className="why-decor why-decor-d"><WhyIcon i={2} size={28} /></span>
+            <span className="why-decor why-decor-a ol-serif" aria-hidden="true">local · open · yours</span>
+            <span className="why-decor why-decor-b ol-mono" aria-hidden="true">MIT</span>
+            <span className="why-decor why-decor-c" aria-hidden="true"><WhyIcon i={0} size={36} /></span>
+            <span className="why-decor why-decor-d" aria-hidden="true"><WhyIcon i={2} size={28} /></span>
           </aside>
 
           {/* RIGHT: vertical stack of compact MagicCards */}

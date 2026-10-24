@@ -1,165 +1,163 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useI18n } from "@/components/i18n-provider";
 import { BorderBeam } from "@/components/ui/border-beam";
-
-const ACCENTS = ["#10A37F", "#1E63FF", "#FF6A1A", "#0A0A0C"];
-const APPS = ["ChatGPT", "Cursor", "Mail", "Notion"];
-
-function ScenIcon({ i, large = false }: { i: number; large?: boolean }) {
-  const sz = large ? 64 : 14;
-  const props = {
-    width: sz,
-    height: sz,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: large ? 1.2 : 1.8,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    style: large ? { color: "var(--accent)", opacity: 0.5 } : undefined,
-  };
-  if (i === 0) {
-    return (
-      <svg {...props}>
-        <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/>
-        <path d="M19 16l.9 2.6L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.4L19 16z"/>
-      </svg>
-    );
-  }
-  if (i === 1) {
-    return (
-      <svg {...props}>
-        <rect x="3" y="5" width="18" height="14" rx="2"/>
-        <path d="M3 7l9 6 9-6"/>
-      </svg>
-    );
-  }
-  if (i === 2) {
-    return (
-      <svg {...props}>
-        <path d="M16 18l6-6-6-6M8 6l-6 6 6 6M14 4l-4 16"/>
-      </svg>
-    );
-  }
-  return (
-    <svg {...props}>
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-      <path d="M14 2v6h6M9 13h6M9 17h4"/>
-    </svg>
-  );
-}
+import { useI18n } from "@/components/i18n-provider";
+import { SCENARIO_ACCENTS } from "@/lib/site";
 
 export function Scenarios() {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
+  const items = t.scenarios.items;
   const wrapRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [progress, setProgress] = useState(0);
-
-  const items = t.scenarios.items;
+  const item = items[active];
 
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const r = wrap.getBoundingClientRect();
-        const winH = window.innerHeight;
-        const total = wrap.offsetHeight - winH;
-        const scrolled = Math.min(Math.max(-r.top, 0), total);
-        const p = total > 0 ? scrolled / total : 0;
-        setProgress(p);
-        const i = Math.min(items.length - 1, Math.floor(p * items.length));
-        setActive(i);
-      });
+    let frame = 0;
+
+    const measure = () => {
+      frame = 0;
+      const rect = wrap.getBoundingClientRect();
+      const total = wrap.offsetHeight - window.innerHeight;
+      const scrolled = Math.min(Math.max(-rect.top, 0), Math.max(total, 0));
+      const ratio = total > 0 ? scrolled / total : 0;
+      setProgress(ratio);
+      setActive(Math.min(items.length - 1, Math.floor(ratio * items.length)));
     };
-    onScroll();
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(measure);
+    };
+
+    measure();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
-      cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, [items.length]);
+
+  const goTo = (index: number) => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const total = wrap.offsetHeight - window.innerHeight;
+    const top = wrap.offsetTop + (index + 0.5) * (total / items.length);
+    window.scrollTo({ top, behavior: "smooth" });
+  };
 
   return (
     <section className="scen-section">
       <div className="ol-container">
-        <header className="section-head" style={{ marginBottom: 40 }}>
-          <span className="ol-eyebrow"><span className="dot" />{t.scenarios.eyebrow}</span>
-          <h2 className="ol-h2" style={{ marginTop: 16 }}>{t.scenarios.title}</h2>
+        <header className="section-head">
+          <span className="ol-eyebrow">
+            <span className="dot" />
+            {t.scenarios.eyebrow}
+          </span>
+          <h2 className="ol-h2">{t.scenarios.title}</h2>
         </header>
       </div>
+
       <div className="scen-wrap" ref={wrapRef}>
         <div className="scen-sticky">
           <div className="ol-container">
-            <div className="scen-stage" style={{ ["--accent" as string]: ACCENTS[active] }}>
+            <div className="scen-stage" style={{ ["--accent" as string]: SCENARIO_ACCENTS[active] }}>
               <div className="scen-meta">
                 <span className="scen-tag ol-mono">
                   {String(active + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}
                 </span>
-                <h3 className="scen-heading">{items[active].t}</h3>
-                <p className="scen-desc">{items[active].d}</p>
+                <span className="scen-kicker">{item.tag}</span>
+                <h3 className="scen-heading">{item.t}</h3>
+                <p className="scen-desc">{item.d}</p>
                 <div className="scen-pips">
-                  {items.map((_, i) => (
-                    <span key={i} className={`scen-pip ${i === active ? "on" : ""} ${i < active ? "past" : ""}`} />
+                  {items.map((entry, index) => (
+                    <button
+                      key={entry.tag}
+                      type="button"
+                      className={`scen-pip ${index === active ? "on" : ""} ${index < active ? "past" : ""}`}
+                      aria-label={`${index + 1}. ${entry.tag}`}
+                      aria-current={index === active ? "true" : undefined}
+                      onClick={() => goTo(index)}
+                    />
                   ))}
                 </div>
                 <span className="scen-hint ol-mono">{t.scenarios.hint}</span>
               </div>
-              <div className="scen-visual">
-                {items.map((_, i) => (
-                  <div
-                    key={i}
-                    className={`scen-frame ${i === active ? "on" : i < active ? "past" : "future"}`}
-                    style={{ ["--accent" as string]: ACCENTS[i] }}
-                  >
-                    <div className="scen-frame-bar">
-                      <span className="hv-dot r" /><span className="hv-dot y" /><span className="hv-dot g" />
-                      <span className="scen-frame-title ol-mono">{APPS[i].toLowerCase()}.app</span>
-                    </div>
-                    <div className="scen-frame-body">
-                      <span className="scen-image-label ol-mono">
-                        {t.scenarios.placeholder(APPS[i])}
-                      </span>
-                      <ScenIcon i={i} large />
-                    </div>
-                    {i === active && (
-                      <BorderBeam size={140} duration={7} colorFrom={ACCENTS[i]} colorTo="#7AA7FF" borderWidth={1.5} />
-                    )}
+
+              <div className="scen-demo" aria-live="polite">
+                <div className="scen-demo-bar">
+                  <span className="hv-dot r" aria-hidden="true" />
+                  <span className="hv-dot y" aria-hidden="true" />
+                  <span className="hv-dot g" aria-hidden="true" />
+                  <span className="scen-demo-title ol-mono">{item.app.toLowerCase()}.app</span>
+                  <span className="scen-demo-mode ol-mono">{item.mode}</span>
+                </div>
+
+                <div className="scen-demo-body" key={active}>
+                  <div className="scen-block">
+                    <span className="scen-label ol-mono">{t.scenarios.draftLabel}</span>
+                    <p className="scen-draft">{item.draft}</p>
                   </div>
-                ))}
+
+                  <div className="scen-flow" aria-hidden="true">
+                    <span className="scen-flow-line" />
+                    <span className="scen-flow-dot" />
+                  </div>
+
+                  <div className="scen-block scen-block-result">
+                    <span className="scen-label ol-mono">{t.scenarios.resultLabel}</span>
+                    <div className="scen-result">
+                      {item.result.split("\n").map((line, index) => (
+                        <span
+                          key={`${active}-${index}`}
+                          className="scen-line"
+                          style={{ animationDelay: `${140 + index * 90}ms` }}
+                        >
+                          {line || "\u00a0"}
+                        </span>
+                      ))}
+                      <span className="scen-caret" aria-hidden="true" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="scen-demo-foot">
+                  <span className="scen-wave" aria-hidden="true">
+                    {Array.from({ length: 9 }, (_, index) => (
+                      <i key={index} style={{ animationDelay: `${index * 70}ms` }} />
+                    ))}
+                  </span>
+                  <span className="scen-mode-label ol-mono">
+                    {t.scenarios.modeLabel} · {item.mode}
+                  </span>
+                </div>
+
+                <BorderBeam size={140} duration={8} colorFrom={SCENARIO_ACCENTS[active]} colorTo="#7AA7FF" borderWidth={1.5} />
               </div>
             </div>
-            <div className="scen-progress">
-              <span style={{ width: progress * 100 + "%" }} />
+
+            <div className="scen-progress" aria-hidden="true">
+              <span style={{ width: `${progress * 100}%` }} />
             </div>
           </div>
         </div>
       </div>
-      <span style={{ display: "none" }}>{lang}</span>
+
       <style>{`
         .hv-dot { width: 10px; height: 10px; border-radius: 50%; }
         .hv-dot.r { background: #FF5F57; }
         .hv-dot.y { background: #FEBC2E; }
         .hv-dot.g { background: #28C840; }
-        .section-head { text-align: center; max-width: 760px; margin: 0 auto; }
         .scen-section { padding-top: 80px; padding-bottom: 0; }
         .scen-wrap { position: relative; height: 360vh; }
         .scen-sticky { position: sticky; top: 10vh; height: 80vh; display: flex; align-items: center; }
-        .scen-stage {
-          --accent: #1E63FF;
-          display: grid;
-          grid-template-columns: 380px 1fr;
-          gap: 64px;
-          align-items: center;
-          width: 100%;
-        }
-        .scen-meta { display: flex; flex-direction: column; gap: 18px; }
+        .scen-stage { display: grid; grid-template-columns: 360px 1fr; gap: 64px; align-items: center; width: 100%; }
+        .scen-meta { display: flex; flex-direction: column; gap: 14px; }
         .scen-tag {
           font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase;
           color: var(--accent);
@@ -169,55 +167,62 @@ export function Scenarios() {
           align-self: flex-start;
           transition: color .4s, background .4s;
         }
-        .scen-heading { margin: 0; font-size: clamp(32px, 4vw, 48px); letter-spacing: -0.025em; line-height: 1.05; font-weight: 500; }
-        .scen-desc { color: var(--ol-ink-3); font-size: 16px; line-height: 1.6; margin: 0; }
-        .scen-pips { display: flex; gap: 6px; margin-top: 12px; }
-        .scen-pip { width: 28px; height: 3px; border-radius: 2px; background: var(--ol-line-2); transition: background .3s, width .3s; }
+        .scen-kicker { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ol-muted); }
+        .scen-heading { margin: 0; font-size: clamp(28px, 3.2vw, 42px); letter-spacing: -0.025em; line-height: 1.08; font-weight: 500; }
+        .scen-desc { color: var(--ol-ink-3); font-size: 15.5px; line-height: 1.6; margin: 0; }
+        .scen-pips { display: flex; gap: 6px; margin-top: 10px; }
+        .scen-pip {
+          width: 28px; height: 4px; border-radius: 2px; padding: 0;
+          border: 0; background: var(--ol-line-2); cursor: pointer;
+          transition: background .3s, width .3s;
+        }
+        .scen-pip:hover { background: var(--ol-muted-2); }
         .scen-pip.on { background: var(--accent); width: 44px; }
         .scen-pip.past { background: color-mix(in oklab, var(--accent) 35%, transparent); }
-        .scen-hint { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ol-muted); margin-top: 8px; }
-        .scen-visual { position: relative; aspect-ratio: 16 / 10; width: 100%; }
-        .scen-frame {
-          position: absolute; inset: 0;
+        .scen-hint { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ol-muted); margin-top: 6px; }
+
+        .scen-demo {
+          position: relative;
           background: #fff;
           border: 1px solid var(--ol-line);
           border-radius: var(--ol-radius-xl);
           box-shadow: 0 30px 80px -30px rgba(10,10,12,0.22);
           overflow: hidden;
           display: flex; flex-direction: column;
-          opacity: 0;
-          transform: translateY(24px) scale(0.98);
-          transition: opacity .55s ease, transform .55s cubic-bezier(.22,.61,.36,1);
-          pointer-events: none;
+          aspect-ratio: 16 / 10;
+          min-height: 380px;
         }
-        .scen-frame.on { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-        .scen-frame.past { opacity: 0; transform: translateY(-24px) scale(0.98); }
-        .scen-frame-bar { height: 38px; flex-shrink: 0; display: flex; align-items: center; padding: 0 14px; gap: 8px; border-bottom: 1px solid var(--ol-line); background: rgba(248,248,250,0.7); }
-        .scen-frame-title { margin-left: 14px; font-size: 11.5px; color: var(--ol-muted); letter-spacing: 0.04em; }
-        .scen-frame-body {
-          flex: 1; position: relative;
-          background:
-            radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--accent) 12%, transparent), transparent 55%),
-            linear-gradient(135deg, #fafbfd, #eef1f8);
-          display: grid; place-items: center;
-          color: var(--ol-ink-3);
-        }
-        .scen-image-label {
-          position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
-          font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
-          color: var(--ol-muted);
-          padding: 5px 12px;
-          background: rgba(255,255,255,0.92);
-          border: 1px dashed var(--ol-line-2);
-          border-radius: 999px;
-          z-index: 2;
-        }
+        .scen-demo-bar { height: 40px; flex-shrink: 0; display: flex; align-items: center; padding: 0 14px; gap: 8px; border-bottom: 1px solid var(--ol-line); background: rgba(248,248,250,0.7); }
+        .scen-demo-title { margin-left: 12px; font-size: 11.5px; color: var(--ol-muted); letter-spacing: 0.04em; }
+        .scen-demo-mode { margin-left: auto; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); background: color-mix(in oklab, var(--accent) 8%, transparent); border-radius: 999px; padding: 3px 9px; }
+        .scen-demo-body { flex: 1; min-height: 0; overflow-y: auto; padding: 26px 30px; display: flex; flex-direction: column; gap: 12px; justify-content: center; background: radial-gradient(circle at 70% 20%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 60%), #fff; }
+        .scen-block { display: flex; flex-direction: column; gap: 7px; }
+        .scen-label { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ol-muted); }
+        .scen-draft { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ol-muted); font-style: italic; }
+        .scen-flow { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+        .scen-flow-line { flex: 1; height: 1px; background: repeating-linear-gradient(90deg, var(--ol-line-2) 0 4px, transparent 4px 8px); }
+        .scen-flow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 14%, transparent); }
+        .scen-result { position: relative; font-size: 15px; line-height: 1.6; color: var(--ol-ink); display: flex; flex-direction: column; gap: 2px; }
+        .scen-line { display: block; animation: scen-line-in .5s cubic-bezier(.2,.8,.2,1) both; }
+        @keyframes scen-line-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        .scen-caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -0.18em; background: var(--accent); animation: scen-blink 1.1s steps(1) infinite; }
+        @keyframes scen-blink { 50% { opacity: 0; } }
+        .scen-demo-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 30px; border-top: 1px solid var(--ol-line); background: rgba(250,250,252,0.8); }
+        .scen-wave { display: inline-flex; align-items: flex-end; gap: 3px; height: 18px; }
+        .scen-wave i { width: 3px; height: 6px; border-radius: 2px; background: var(--accent); opacity: .55; animation: scen-wave 1.1s ease-in-out infinite; }
+        @keyframes scen-wave { 0%, 100% { height: 5px; opacity: .4; } 50% { height: 17px; opacity: .9; } }
+        .scen-mode-label { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ol-muted); }
+
         .scen-progress { margin-top: 32px; height: 2px; background: var(--ol-line-2); border-radius: 2px; overflow: hidden; max-width: 260px; }
         .scen-progress > span { display: block; height: 100%; background: var(--ol-blue); transition: width .25s ease; }
+
         @media (max-width: 900px) {
-          .scen-stage { grid-template-columns: 1fr; gap: 32px; }
+          .scen-stage { grid-template-columns: 1fr; gap: 28px; }
           .scen-wrap { height: 320vh; }
           .scen-sticky { top: 6vh; }
+          .scen-demo { aspect-ratio: auto; min-height: 320px; }
+          .scen-demo-body { padding: 20px; }
+          .scen-demo-foot { padding: 10px 20px; }
         }
       `}</style>
     </section>

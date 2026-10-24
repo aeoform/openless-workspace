@@ -1,22 +1,26 @@
 "use client";
 
 import { Marquee } from "@/components/ui/marquee";
+import { COMPATIBLE_APPS } from "@/lib/site";
 import { useI18n } from "@/components/i18n-provider";
-
-const APPS = ["ChatGPT", "Claude", "Cursor", "Gemini", "Notion", "Slack", "Lark", "WeChat", "Mail", "VS Code", "Figma", "Linear", "Obsidian", "Raycast"];
 
 export function WorksWith() {
   const { t } = useI18n();
+
   return (
     <section className="ol-section tight">
       <div className="ol-container" style={{ marginBottom: 24, textAlign: "center" }}>
-        <span className="ol-eyebrow"><span className="dot" />{t.works.label}</span>
+        <span className="ol-eyebrow">
+          <span className="dot" />
+          {t.works.label}
+        </span>
       </div>
       <div className="works-mask">
         <Marquee className="[--duration:60s] [--gap:64px] py-2" pauseOnHover>
-          {APPS.map((a) => (
-            <span key={a} className="works-item">
-              <span className="works-dot" />{a}
+          {COMPATIBLE_APPS.map((app) => (
+            <span key={app} className="works-item">
+              <span className="works-dot" aria-hidden="true" />
+              {app}
             </span>
           ))}
         </Marquee>
@@ -38,13 +42,7 @@ export function WorksWith() {
           align-items: center;
           gap: 18px;
         }
-        .works-dot {
-          width: 5px; height: 5px;
-          border-radius: 50%;
-          background: var(--ol-blue);
-          opacity: 0.5;
-          flex-shrink: 0;
-        }
+        .works-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ol-blue); opacity: 0.5; flex-shrink: 0; }
       `}</style>
     </section>
   );

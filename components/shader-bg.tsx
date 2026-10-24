@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 const VERT = `
   attribute vec2 a;
@@ -105,6 +106,9 @@ export function ShaderBg() {
       return;
     }
 
+    // Reduced motion: still paint the backdrop, just do not animate it.
+    const reducedMotion = prefersReducedMotion();
+
     const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
 
     const compile = (type: number, src: string) => {
@@ -159,8 +163,9 @@ export function ShaderBg() {
     window.addEventListener("mousemove", onMouse);
 
     let raf = 0;
+    let running = true;
     const t0 = performance.now();
-    const tick = (now: number) => {
+    const draw = (now: number) => {
       const t = (now - t0) / 1000;
       gl.uniform2f(uRes, canvas.width, canvas.height);
       gl.uniform1f(uTime, t);
@@ -170,14 +175,42 @@ export function ShaderBg() {
       gl.uniform1f(uBeam, state.beams);
       gl.uniform2f(uMouse, state.mouse[0], state.mouse[1]);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+    };
+    const tick = (now: number) => {
+      if (!running) return;
+      draw(now);
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
+
+    const start = () => {
+      if (raf || reducedMotion) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    if (reducedMotion) {
+      draw(t0);
+    } else {
+      start();
+    }
+
+    // Background tab: stop burning GPU on a canvas nobody is looking at.
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") start();
+      else stop();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouse);
-      cancelAnimationFrame(raf);
+      stop();
     };
   }, []);
 
