@@ -1,0 +1,36 @@
+{
+  "repo": "Open-Less/openless",
+  "tag": "v2.0.1-tauri",
+  "version": "2.0.1",
+  "publishedAt": "2026-10-16T12:40:48Z",
+  "htmlUrl": "https://github.com/Open-Less/openless/releases/tag/v2.0.1-tauri",
+  "fetchedAt": "2026-10-24T16:52:42.219Z",
+  "source": "github-api",
+  "assets": {
+    "macosArm": {
+      "name": "OpenLess_2.0.1+build.20261016_aarch64.dmg",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_aarch64.dmg",
+      "size": 28983090
+    },
+    "macosIntel": {
+      "name": "OpenLess_2.0.1+build.20261016_x64.dmg",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x64.dmg",
+      "size": 29719413
+    },
+    "windowsMSI": {
+      "name": "OpenLess_2.0.1+build.20261016_x64_en-US.msi",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x64_en-US.msi",
+      "size": 23003136
+    },
+    "windowsX64": {
+      "name": "OpenLess_2.0.1+build.20261016_x64-setup.exe",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x64-setup.exe",
+      "size": 16346253
+    },
+    "checksums": {
+      "name": "SHA256SUMS",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/SHA256SUMS",
+      "size": 3155
+    }
+  }
+}

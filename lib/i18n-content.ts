@@ -132,6 +132,13 @@ export const i18nContent = {
       finalTitle: "开始使用",
       finalDesc: "选择你的系统，前往 GitHub Releases 下载最新稳定版，并用 SHA256SUMS 校验文件。",
       platforms: ["下载 macOS", "下载 Windows", "下载 Linux"],
+      prefix: "下载",
+      recommended: "推荐",
+      latest: "最新版",
+      published: "发布于",
+      allReleases: "所有版本",
+      checksums: "SHA256 校验",
+      detectedHint: "已按当前系统选择安装包。",
       steps: [
         {
           n: "01",
@@ -309,6 +316,13 @@ export const i18nContent = {
       finalTitle: "Get going",
       finalDesc: "Pick your system and grab the latest stable build from GitHub Releases, then verify it against SHA256SUMS.",
       platforms: ["Download macOS", "Download Windows", "Download Linux"],
+      prefix: "Download for",
+      recommended: "Recommended",
+      latest: "Latest",
+      published: "Published",
+      allReleases: "All releases",
+      checksums: "SHA256 checksums",
+      detectedHint: "Installer selected for the system you are using.",
       steps: [
         {
           n: "01",

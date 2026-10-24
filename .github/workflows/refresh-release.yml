@@ -1,0 +1,34 @@
+name: Refresh latest release snapshot
+
+on:
+  schedule:
+    # Every 6 hours; releases are not frequent, and this keeps API usage tiny.
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Fetch latest stable release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/fetch-release.mjs
+      - name: Commit snapshot when it changed
+        run: |
+          if git diff --quiet -- public/release.json; then
+            echo "release snapshot already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/release.json
+          git commit -m "chore: refresh latest release snapshot"
+          git push

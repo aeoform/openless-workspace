@@ -2,6 +2,18 @@
 
 Next.js 静态官网，中英文切换和浏览器动画不依赖服务端。风格市场、云同步服务独立部署，不包含在本项目。
 
+## 下载链接如何跟随最新版
+
+浏览器不能可靠地直接调用 GitHub API（CORS、限流、无服务端），所以版本信息在**构建时**落成静态文件：
+
+1. `scripts/fetch-release.mjs` 读取 `Open-Less/openless` 最新稳定 Release，把平台安装包的直链写入 `public/release.json`。
+2. 该脚本作为 `prebuild` 自动执行，GitHub Actions 与阿里云 ESA 构建都会跑；`.github/workflows/refresh-release.yml` 另外每 6 小时刷新快照并提交。
+3. 拉取失败时保留已提交的快照，构建不会失败；没有快照时退回 `releases/latest`。
+4. 前端读取同源 `/release.json`（无需跨域），按 `navigator.userAgent` / `userAgentData` 判断系统和架构，首屏按钮直接指向对应安装包。Safari、Firefox 拿不到 CPU 架构，macOS 会同时提供 Apple Silicon 与 Intel 两个包。
+5. Linux 的 deb/rpm 只在 Release 里确实存在时才出现，不存在时按钮回落到版本页。
+
+手动刷新快照：`pnpm release:sync`。
+
 ## 构建
 
 使用 Node.js 24 和 pnpm 11.27.1：

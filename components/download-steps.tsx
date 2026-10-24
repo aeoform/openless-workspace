@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AppleIcon, DownloadIcon, GitHubIcon, LinuxIcon, WindowsIcon } from "@/components/icons";
-import { LATEST_RELEASE_URL, REPO_URL } from "@/lib/site";
+import { AppleIcon, DownloadIcon, LinuxIcon, WindowsIcon } from "@/components/icons";
+import { REPO_URL } from "@/lib/site";
+import { useDownloadTargets, type AssetSlot } from "@/lib/release";
 import { useI18n } from "@/components/i18n-provider";
 
-const PLATFORM_ICONS = [AppleIcon, WindowsIcon, LinuxIcon];
+function TargetIcon({ slot }: { slot: AssetSlot }) {
+  if (slot.startsWith("macos")) return <AppleIcon />;
+  if (slot.startsWith("windows")) return <WindowsIcon />;
+  return <LinuxIcon />;
+}
 
 function StepArt({ index }: { index: number }) {
   if (index === 0) {
@@ -37,6 +42,7 @@ function StepArt({ index }: { index: number }) {
 
 export function DownloadSteps() {
   const { t } = useI18n();
+  const { targets, version, publishedAt, href, checksums, primary } = useDownloadTargets();
   const wrapRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -126,21 +132,41 @@ export function DownloadSteps() {
                 <div className="dl-num ol-serif">→</div>
                 <h3>{t.download.finalTitle}</h3>
                 <p>{t.download.finalDesc}</p>
+                {version && (
+                  <p className="dl-release ol-mono">
+                    {t.download.latest} · v{version}
+                    {publishedAt ? ` · ${t.download.published} ${publishedAt.slice(0, 10)}` : ""}
+                  </p>
+                )}
                 <div className="dl-actions">
-                  {t.download.platforms.map((label, index) => {
-                    const Icon = PLATFORM_ICONS[index];
-                    return (
-                      <a key={label} className="ol-btn ol-btn-primary" href={LATEST_RELEASE_URL} target="_blank" rel="noreferrer">
-                        <Icon />
-                        {label}
-                      </a>
-                    );
-                  })}
-                  <a className="ol-btn ol-btn-ghost" href={REPO_URL} target="_blank" rel="noreferrer">
-                    <GitHubIcon />
-                    GitHub
+                  {targets.map((target) => (
+                    <a
+                      key={target.id}
+                      className={`ol-btn ${target.recommended ? "ol-btn-primary" : "ol-btn-ghost"}`}
+                      href={target.href}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <TargetIcon slot={target.id} />
+                      {target.label}
+                      {target.recommended && <span className="dl-badge">{t.download.recommended}</span>}
+                    </a>
+                  ))}
+                </div>
+                <div className="dl-links">
+                  <a href={href} target="_blank" rel="noreferrer">
+                    {t.download.allReleases} ↗
+                  </a>
+                  {checksums && (
+                    <a href={checksums.href} target="_blank" rel="noreferrer">
+                      {t.download.checksums} ↗
+                    </a>
+                  )}
+                  <a href={REPO_URL} target="_blank" rel="noreferrer">
+                    GitHub ↗
                   </a>
                 </div>
+                {primary && <p className="dl-detected ol-mono">{t.download.detectedHint}</p>}
               </div>
             </div>
           </div>
@@ -197,6 +223,12 @@ export function DownloadSteps() {
         .dl-code::before { content: "$ "; color: var(--ol-blue); }
         .dl-card.final .dl-code { display: none; }
         .dl-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+        .dl-badge { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; background: var(--ol-blue); color: #fff; }
+        .dl-release { margin-top: 14px; font-size: 12px; color: rgba(255,255,255,0.75); letter-spacing: 0.04em; }
+        .dl-links { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; font-size: 12px; }
+        .dl-links a { color: rgba(255,255,255,0.62); transition: color .15s; }
+        .dl-links a:hover { color: #fff; }
+        .dl-detected { margin-top: 10px; font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: 0.04em; }
         .dl-art { position: absolute; bottom: 24px; right: 28px; opacity: 0.16; pointer-events: none; }
         .dl-hint { display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; font-size: 11px; color: var(--ol-muted); margin-top: 24px; letter-spacing: 0.16em; text-transform: uppercase; }
         @media (max-width: 800px) {
