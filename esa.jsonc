@@ -1,0 +1,11 @@
+{
+  // Aliyun ESA "函数和 Pages" build config. This file takes precedence over
+  // the console build settings, so change build options here.
+  "name": "openless-web",
+  "installCommand": "npx --yes pnpm@11.27.1 install --frozen-lockfile",
+  "buildCommand": "npx --yes pnpm@11.27.1 build",
+  "assets": {
+    "directory": "./out",
+    "notFoundStrategy": "404Page"
+  }
+}

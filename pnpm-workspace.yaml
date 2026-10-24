@@ -1,0 +1,5 @@
+# Static export does not need dependency lifecycle scripts.
+allowBuilds:
+  msw: false
+  sharp: false
+  unrs-resolver: false
