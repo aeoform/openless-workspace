@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DownloadIcon } from "@/components/icons";
 import { useI18n } from "@/components/i18n-provider";
-import { useDownloadState, type Group, type PlatformOption } from "@/lib/release";
+import { LATEST_RELEASE, useDownloadState, type Group, type PlatformOption } from "@/lib/release";
 
 const GROUP_LABEL: Record<Group, string> = {
   macos: "macOS",
@@ -49,6 +49,9 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
   }, [open]);
 
   const mainLabel = recommended ? `${t.download.prefix} ${recommended.os} · ${recommended.arch}` : t.hero.cta_download;
+  // Never render a dead control: without a matching asset we land on the
+  // latest release page, which always exists.
+  const mainHref = recommended?.href ?? LATEST_RELEASE;
 
   const groups = GROUP_ORDER.map((group) => ({
     group,
@@ -58,18 +61,11 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
   return (
     <div className={`dl-split ${variant === "dark" ? "is-dark" : ""}`} ref={wrapRef}>
       <div className="dl-split-main">
-        {recommended ? (
-          <a className="dl-split-primary" href={recommended.href!} rel="noreferrer">
-            <DownloadIcon />
-            <span>{mainLabel}</span>
-            {recommended.size ? <em className="ol-mono">{size(recommended.size)}</em> : null}
-          </a>
-        ) : (
-          <span className="dl-split-primary is-disabled" aria-disabled="true">
-            <DownloadIcon />
-            <span>{mainLabel}</span>
-          </span>
-        )}
+        <a className="dl-split-primary" href={mainHref} rel="noreferrer" title={mainHref}>
+          <DownloadIcon />
+          <span>{mainLabel}</span>
+          {recommended?.size ? <em className="ol-mono">{size(recommended.size)}</em> : null}
+        </a>
         <button
           type="button"
           ref={buttonRef}
@@ -120,7 +116,6 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
         .dl-split-main:hover { box-shadow: 0 10px 30px -10px rgba(30,99,255,0.55), 0 0 0 4px rgba(30,99,255,0.10); }
         .dl-split-primary { display: inline-flex; align-items: center; gap: 10px; padding: 14px 18px 14px 22px; color: #fff; font-size: 14.5px; font-weight: 500; white-space: nowrap; }
         .dl-split-primary em { font-style: normal; font-size: 11px; color: rgba(255,255,255,0.6); }
-        .dl-split-primary.is-disabled { opacity: .55; cursor: not-allowed; }
         .dl-split-toggle { display: grid; place-items: center; padding: 0 16px; border: 0; border-left: 1px solid rgba(255,255,255,0.18); background: transparent; color: #fff; cursor: pointer; transition: background .2s; }
         .dl-split-toggle:hover { background: rgba(255,255,255,0.10); }
         .dl-split-toggle:focus-visible, .dl-split-primary:focus-visible { outline: 2px solid var(--ol-blue); outline-offset: -3px; }

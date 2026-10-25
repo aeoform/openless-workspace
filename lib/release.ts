@@ -114,6 +114,12 @@ function detectKey(): string {
 const serverKey = () => "other:unknown";
 
 export const RELEASES_PAGE = "https://github.com/Open-Less/openless/releases";
+export const LATEST_RELEASE = "https://github.com/Open-Less/openless/releases/latest";
+
+/** `latest/download/<file>` always resolves against the newest release. */
+export function latestAssetUrl(name: string): string {
+  return `${LATEST_RELEASE}/download/${encodeURIComponent(name)}`;
+}
 
 function option(
   release: ReleaseInfo | null,
@@ -129,11 +135,19 @@ function option(
     os,
     arch,
     group,
-    href: asset?.url ?? null,
+    href: asset ? latestAssetUrl(asset.name) : null,
     size: asset?.size ?? null,
     recommended: false,
   };
 }
+
+/** Used when the UA gives no architecture, or reports one we did not anticipate. */
+const PLATFORM_DEFAULT: Record<Platform, AssetSlot> = {
+  macos: "macosArm",
+  windows: "windowsX64",
+  linux: "linuxDeb",
+  other: "macosArm",
+};
 
 const SLOT_RECOMMENDATION: Record<string, AssetSlot> = {
   "macos:arm64": "macosArm",
@@ -187,7 +201,7 @@ export function useDownloadState(): DownloadState {
   ];
 
   // Only the primary installer of each platform is preselected, never the extras.
-  const wanted = SLOT_RECOMMENDATION[`${detected}:${arch}`];
+  const wanted = SLOT_RECOMMENDATION[`${detected}:${arch}`] ?? PLATFORM_DEFAULT[detected];
   const options = all.map((entry) => ({
     ...entry,
     recommended: entry.href !== null && matchesSlot(entry, wanted),
@@ -200,7 +214,7 @@ export function useDownloadState(): DownloadState {
     recommended: options.find((entry) => entry.recommended) ?? null,
     version: release?.version ?? null,
     publishedAt: release?.publishedAt ?? null,
-    releasesHref: release?.htmlUrl ?? RELEASES_PAGE,
+    releasesHref: release?.htmlUrl ?? LATEST_RELEASE,
     checksumsHref: release?.assets?.checksums?.url ?? null,
   };
 }
