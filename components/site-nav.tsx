@@ -14,7 +14,7 @@ export function Logo({ size = 24 }: { size?: number }) {
   );
 }
 
-export function SiteNav({ active = "home" }: { active?: "home" | "docs" }) {
+export function SiteNav({ active = "home" }: { active?: "home" | "docs" | "download" }) {
   const { lang, setLang, t } = useI18n();
 
   return (
@@ -27,9 +27,9 @@ export function SiteNav({ active = "home" }: { active?: "home" | "docs" }) {
           <Link href="/" className={active === "home" ? "active" : ""} aria-current={active === "home" ? "page" : undefined}>
             {t.nav.product}
           </Link>
-          <a href="https://github.com/Open-Less/openless#readme" target="_blank" rel="noreferrer">
+          <Link href="/docs" className={active === "docs" ? "active" : ""} aria-current={active === "docs" ? "page" : undefined}>
             {t.nav.docs}
-          </a>
+          </Link>
           <a href="https://github.com/Open-Less/openless" target="_blank" rel="noreferrer">
             GitHub ↗
           </a>
@@ -43,10 +43,10 @@ export function SiteNav({ active = "home" }: { active?: "home" | "docs" }) {
               EN
             </button>
           </div>
-          <a href="#download" className="ol-btn ol-btn-primary ol-btn-sm">
+          <Link href="/download" className="ol-btn ol-btn-primary ol-btn-sm">
             {t.nav.download}
             <ArrowRight className="arrow" />
-          </a>
+          </Link>
         </div>
       </div>
     </header>

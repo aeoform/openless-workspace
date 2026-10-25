@@ -11,6 +11,15 @@ const COLUMNS = [
   { key: "community", links: FOOTER_LINKS.community },
 ] as const;
 
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const external = href.startsWith("http");
+  return (
+    <a href={href} {...(external ? { target: "_blank", rel: "noreferrer" } : {})}>
+      {children}
+    </a>
+  );
+}
+
 export function SiteFooter() {
   const { t } = useI18n();
 
@@ -38,9 +47,7 @@ export function SiteFooter() {
               <ul>
                 {t.footer.links[column.key].map((label, index) => (
                   <li key={label}>
-                    <a href={column.links[index]} target="_blank" rel="noreferrer">
-                      {label}
-                    </a>
+                    <FooterLink href={column.links[index]}>{label}</FooterLink>
                   </li>
                 ))}
               </ul>

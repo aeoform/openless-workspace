@@ -33,12 +33,8 @@ export const COMPATIBLE_APPS = [
 export const SCENARIO_ACCENTS = ["#10A37F", "#1E63FF", "#FF6A1A", "#0A0A0C"] as const;
 
 export const FOOTER_LINKS = {
-  product: [RELEASES_URL, `${REPO_URL}#readme`, `${REPO_URL}#roadmap`, RELEASES_URL],
-  resource: [
-    REPO_URL,
-    `${REPO_URL}/blob/main/USAGE.md`,
-    `${REPO_URL}#architecture`,
-    `${REPO_URL}#compare`,
-  ],
-  community: [`${ISSUES_URL}`, `${REPO_URL}/discussions`, RELEASES_URL, `${REPO_URL}/blob/main/LICENSE`],
+  // Internal pages first; only community channels stay on GitHub.
+  product: ["/download/", "/docs/", "/#roadmap", "/docs/#faq"],
+  resource: [REPO_URL, "/docs/#usage", "/docs/#architecture", "/docs/#privacy"],
+  community: [ISSUES_URL, `${REPO_URL}/discussions`, "/download/", `${REPO_URL}/blob/main/LICENSE`],
 } as const;

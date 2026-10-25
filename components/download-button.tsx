@@ -49,8 +49,6 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
   }, [open]);
 
   const mainLabel = recommended ? `${t.download.prefix} ${recommended.os} · ${recommended.arch}` : t.hero.cta_download;
-  // Never render a dead control: without a matching asset we land on the
-  // latest release page, which always exists.
   const mainHref = recommended?.href ?? LATEST_RELEASE;
 
   const groups = GROUP_ORDER.map((group) => ({
@@ -61,11 +59,20 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
   return (
     <div className={`dl-split ${variant === "dark" ? "is-dark" : ""}`} ref={wrapRef}>
       <div className="dl-split-main">
-        <a className="dl-split-primary" href={mainHref} rel="noreferrer" title={mainHref}>
-          <DownloadIcon />
-          <span>{mainLabel}</span>
-          {recommended?.size ? <em className="ol-mono">{size(recommended.size)}</em> : null}
-        </a>
+        {recommended ? (
+          <a className="dl-split-primary" href={mainHref} rel="noreferrer" title={mainHref}>
+            <DownloadIcon />
+            <span>{mainLabel}</span>
+            {recommended.size ? <em className="ol-mono">{size(recommended.size)}</em> : null}
+          </a>
+        ) : (
+          // No installer for this OS in the current release: open the platform
+          // menu instead of sending people to GitHub.
+          <button type="button" className="dl-split-primary" onClick={() => setOpen(true)}>
+            <DownloadIcon />
+            <span>{t.download.choose}</span>
+          </button>
+        )}
         <button
           type="button"
           ref={buttonRef}
@@ -115,6 +122,7 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
         .dl-split-main { display: inline-flex; align-items: stretch; border-radius: 999px; overflow: hidden; background: var(--ol-ink); box-shadow: 0 0 0 0 rgba(30,99,255,0); transition: box-shadow .25s; }
         .dl-split-main:hover { box-shadow: 0 10px 30px -10px rgba(30,99,255,0.55), 0 0 0 4px rgba(30,99,255,0.10); }
         .dl-split-primary { display: inline-flex; align-items: center; gap: 10px; padding: 14px 18px 14px 22px; color: #fff; font-size: 14.5px; font-weight: 500; white-space: nowrap; }
+        button.dl-split-primary { border: 0; background: transparent; cursor: pointer; font-family: inherit; }
         .dl-split-primary em { font-style: normal; font-size: 11px; color: rgba(255,255,255,0.6); }
         .dl-split-toggle { display: grid; place-items: center; padding: 0 16px; border: 0; border-left: 1px solid rgba(255,255,255,0.18); background: transparent; color: #fff; cursor: pointer; transition: background .2s; }
         .dl-split-toggle:hover { background: rgba(255,255,255,0.10); }

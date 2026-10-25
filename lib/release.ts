@@ -86,11 +86,15 @@ const noopSubscribe = () => () => {};
 
 function detectPlatform(): Platform {
   if (typeof navigator === "undefined") return "other";
-  const ua = navigator.userAgent;
+  // userAgentData.platform is the most reliable signal where it exists.
+  const hinted = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ?? "";
+  const legacy = navigator.platform ?? "";
+  const ua = `${hinted} ${legacy} ${navigator.userAgent}`;
+
   if (/android|iphone|ipad|ipod/i.test(ua)) return "other";
-  if (/mac os x|macintosh/i.test(ua)) return "macos";
-  if (/windows/i.test(ua)) return "windows";
-  if (/linux|x11|cros/i.test(ua)) return "linux";
+  if (/mac os x|macintosh|macintel|macppc|mac68k/i.test(ua)) return "macos";
+  if (/windows|win32|win64|winnt/i.test(ua)) return "windows";
+  if (/linux|x11|cros|ubuntu|fedora|debian/i.test(ua)) return "linux";
   return "other";
 }
 

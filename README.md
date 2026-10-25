@@ -90,6 +90,17 @@ ossutil cp -r out/ oss://YOUR_WEBSITE_BUCKET/
 - 使用已认证的 COSCLI 可执行 `coscli cp -r out/ cos://YOUR_WEBSITE_BUCKET/`，先通过当前 CLI 的 help 确认目录上传语义。
 - 配置 HTTPS、DNS、访问权限、回源和备案要求。
 
+## 站内页面
+
+导航与页脚不再把用户送到 GitHub 页面，站内自带两个页面：
+
+| 路径 | 内容 |
+| --- | --- |
+| `/docs/` | 安装、首次启动与权限、快捷键与输出模式、服务渠道、风格包、云同步、隐私、架构、常见问题 |
+| `/download/` | 六个平台的完整安装包列表、版本号、SHA256SUMS、安装说明入口 |
+
+内容在 `lib/docs.ts`（中英双语），页面为 `components/docs-view.tsx` 与 `components/download-view.tsx`；只有 Issues、Discussions、GitHub 源码和许可证仍指向 github.com。
+
 ## 下载行为
 
 点击下载即开始传输，不经过 GitHub 的页面跳转：
