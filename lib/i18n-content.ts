@@ -148,8 +148,6 @@ export const i18nContent = {
       checksums: "SHA256 校验",
       allPlatforms: "所有平台安装包",
       choose: "选择平台",
-      direct: "GitHub 直链",
-      accelerated: "经本站代理加速",
       detectedHint: "已按当前系统选择安装包。",
       steps: [
         {
@@ -344,8 +342,6 @@ export const i18nContent = {
       checksums: "SHA256 checksums",
       allPlatforms: "All platform installers",
       choose: "Choose platform",
-      direct: "Direct GitHub",
-      accelerated: "Proxied via this site",
       detectedHint: "Installer selected for the system you are using.",
       steps: [
         {

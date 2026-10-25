@@ -141,7 +141,7 @@ export function DownloadSteps() {
                     {t.download.allReleases} ↗
                   </a>
                   {checksumsHref && (
-                    <a href={checksumsHref} download>
+                    <a href={checksumsHref} rel="noreferrer">
                       {t.download.checksums} ↓
                     </a>
                   )}

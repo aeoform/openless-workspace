@@ -37,10 +37,8 @@ export type PlatformOption = {
   os: string;
   arch: string;
   group: Group;
-  /** Same-origin proxy URL; null when the release has no package for this slot. */
+  /** Direct release-asset URL; null when this release has no package for the slot. */
   href: string | null;
-  /** github.com fallback, used if the edge proxy is unavailable. */
-  directHref: string | null;
   size: number | null;
   recommended: boolean;
 };
@@ -117,13 +115,6 @@ const serverKey = () => "other:unknown";
 
 export const RELEASES_PAGE = "https://github.com/Open-Less/openless/releases";
 
-/** Download through this domain so the file does not bounce the user to GitHub. */
-export function proxyHref(release: ReleaseInfo | null, slot: AssetSlot): string | null {
-  const asset = release?.assets?.[slot];
-  if (!asset || !release?.tag) return null;
-  return `/dl/${release.tag}/${encodeURIComponent(asset.name)}`;
-}
-
 function option(
   release: ReleaseInfo | null,
   slot: AssetSlot,
@@ -138,8 +129,7 @@ function option(
     os,
     arch,
     group,
-    href: proxyHref(release, slot),
-    directHref: asset?.url ?? null,
+    href: asset?.url ?? null,
     size: asset?.size ?? null,
     recommended: false,
   };
@@ -191,7 +181,6 @@ export function useDownloadState(): DownloadState {
       arch: "NEXT",
       group: "harmony",
       href: null,
-      directHref: null,
       size: null,
       recommended: false,
     },
@@ -199,11 +188,10 @@ export function useDownloadState(): DownloadState {
 
   // Only the primary installer of each platform is preselected, never the extras.
   const wanted = SLOT_RECOMMENDATION[`${detected}:${arch}`];
-  const options = all.map((entry) => {
-    const slot = entry.key === "harmony" ? null : (entry.key as string);
-    const isPrimarySlot = slot !== null && entry.directHref !== null;
-    return { ...entry, recommended: isPrimarySlot && matchesSlot(entry, wanted) };
-  });
+  const options = all.map((entry) => ({
+    ...entry,
+    recommended: entry.href !== null && matchesSlot(entry, wanted),
+  }));
   options.sort((a, b) => Number(b.recommended) - Number(a.recommended));
 
   return {
@@ -213,7 +201,7 @@ export function useDownloadState(): DownloadState {
     version: release?.version ?? null,
     publishedAt: release?.publishedAt ?? null,
     releasesHref: release?.htmlUrl ?? RELEASES_PAGE,
-    checksumsHref: proxyHref(release, "checksums"),
+    checksumsHref: release?.assets?.checksums?.url ?? null,
   };
 }
 

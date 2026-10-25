@@ -48,10 +48,7 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
     };
   }, [open]);
 
-  const mainLabel = recommended
-    ? `${t.download.prefix} ${recommended.os} · ${recommended.arch}`
-    : t.hero.cta_download;
-  const mainHref = recommended?.href ?? releasesHref;
+  const mainLabel = recommended ? `${t.download.prefix} ${recommended.os} · ${recommended.arch}` : t.hero.cta_download;
 
   const groups = GROUP_ORDER.map((group) => ({
     group,
@@ -61,11 +58,18 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
   return (
     <div className={`dl-split ${variant === "dark" ? "is-dark" : ""}`} ref={wrapRef}>
       <div className="dl-split-main">
-        <a className="dl-split-primary" href={mainHref} download={recommended ? true : undefined}>
-          <DownloadIcon />
-          <span>{mainLabel}</span>
-          {recommended?.size ? <em className="ol-mono">{size(recommended.size)}</em> : null}
-        </a>
+        {recommended ? (
+          <a className="dl-split-primary" href={recommended.href!} rel="noreferrer">
+            <DownloadIcon />
+            <span>{mainLabel}</span>
+            {recommended.size ? <em className="ol-mono">{size(recommended.size)}</em> : null}
+          </a>
+        ) : (
+          <span className="dl-split-primary is-disabled" aria-disabled="true">
+            <DownloadIcon />
+            <span>{mainLabel}</span>
+          </span>
+        )}
         <button
           type="button"
           ref={buttonRef}
@@ -102,11 +106,10 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
               {t.platforms.allReleases} ↗
             </a>
             {checksumsHref && (
-              <a href={checksumsHref} download onClick={() => setOpen(false)}>
+              <a href={checksumsHref} rel="noreferrer" onClick={() => setOpen(false)}>
                 {t.platforms.checksums} ↓
               </a>
             )}
-            <span className="ol-mono">{t.download.accelerated}</span>
           </div>
         </div>
       )}
@@ -117,6 +120,7 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
         .dl-split-main:hover { box-shadow: 0 10px 30px -10px rgba(30,99,255,0.55), 0 0 0 4px rgba(30,99,255,0.10); }
         .dl-split-primary { display: inline-flex; align-items: center; gap: 10px; padding: 14px 18px 14px 22px; color: #fff; font-size: 14.5px; font-weight: 500; white-space: nowrap; }
         .dl-split-primary em { font-style: normal; font-size: 11px; color: rgba(255,255,255,0.6); }
+        .dl-split-primary.is-disabled { opacity: .55; cursor: not-allowed; }
         .dl-split-toggle { display: grid; place-items: center; padding: 0 16px; border: 0; border-left: 1px solid rgba(255,255,255,0.18); background: transparent; color: #fff; cursor: pointer; transition: background .2s; }
         .dl-split-toggle:hover { background: rgba(255,255,255,0.10); }
         .dl-split-toggle:focus-visible, .dl-split-primary:focus-visible { outline: 2px solid var(--ol-blue); outline-offset: -3px; }
@@ -142,8 +146,6 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
         .dl-row-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .dl-row-get { font-size: 12px; color: var(--ol-blue); white-space: nowrap; }
         .dl-row-get:hover { text-decoration: underline; }
-        .dl-row-direct { font-size: 10.5px; color: var(--ol-muted-2); white-space: nowrap; }
-        .dl-row-direct:hover { color: var(--ol-ink-3); text-decoration: underline; }
         .dl-row-pending { font-size: 11.5px; color: var(--ol-muted-2); }
         .dl-menu-foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 10px; border-top: 1px solid var(--ol-line); font-size: 11.5px; color: var(--ol-muted); }
         .dl-menu-foot a:hover { color: var(--ol-blue); }
@@ -184,12 +186,7 @@ function MenuRow({ entry, onNavigate }: { entry: PlatformOption; onNavigate: () 
         </span>
       ) : (
         <div className="dl-row-actions">
-          {entry.directHref && (
-            <a className="dl-row-direct ol-mono" href={entry.directHref} target="_blank" rel="noreferrer">
-              {t.download.direct} ↗
-            </a>
-          )}
-          <a className="dl-row-get" href={entry.href!} download onClick={onNavigate} role="menuitem">
+          <a className="dl-row-get" href={entry.href!} rel="noreferrer" onClick={onNavigate} role="menuitem">
             {t.platforms.download} ↓
           </a>
         </div>

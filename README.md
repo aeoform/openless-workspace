@@ -90,21 +90,14 @@ ossutil cp -r out/ oss://YOUR_WEBSITE_BUCKET/
 - 使用已认证的 COSCLI 可执行 `coscli cp -r out/ cos://YOUR_WEBSITE_BUCKET/`，先通过当前 CLI 的 help 确认目录上传语义。
 - 配置 HTTPS、DNS、访问权限、回源和备案要求。
 
-## 下载代理（本域名加速）
+## 下载行为
 
-安装包不跳转 github.com，而是走本站域名的同源代理：
+点击下载即开始传输，不经过 GitHub 的页面跳转：
 
-```
-https://openless.top/dl/<tag>/<asset-name>
-        → https://github.com/Open-Less/openless/releases/download/<tag>/<asset-name>
-```
-
-- 实现在 `edge/download-proxy.js`，由 `esa.jsonc` 的 `entry` 挂到 ESA 边缘函数。
-- 只代理本仓库 release 路径，tag 与文件名都做正则校验，不能当开放代理用；方法限于 GET/HEAD，支持 Range 续传。
-- 响应带 `Content-Disposition: attachment`，浏览器直接开始下载；不可变 URL 缓存 1 天。
-- 下拉菜单里仍保留「GitHub 直链」作为代理不可用时的兜底。
-- 本地 `python -m http.server` 或 `next start` 预览时没有边缘函数，`/dl/...` 会是 404，请用直链或部署后验证。
-- 未配置边缘函数时页面仍可构建；只是所有下载链接会失败，因此不要删除 `entry`。
+- 链接直接指向 Release 资产（`github.com/Open-Less/openless/releases/download/<tag>/<file>`），由 GitHub 返回 `Content-Disposition: attachment`，浏览器立刻开始下载。
+- 首页与安装区的拆分按钮：主按钮给当前系统的安装包，向下箭头展开全部平台（macOS Apple Silicon / Intel、Windows exe·MSI、Linux deb·rpm、Android 四个 ABI、HarmonyOS）。
+- 该版本没有对应安装包时（例如 Linux、HarmonyOS），菜单里显示「暂未发布」，不提供任何跳转页面的下载按钮。
+- 之前的同域代理（`/dl/...` 边缘函数）已移除：链路并不比直连快，还多一次边缘回源。
 
 ## 缓存和发布
 
