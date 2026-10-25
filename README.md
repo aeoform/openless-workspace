@@ -110,6 +110,16 @@ ossutil cp -r out/ oss://YOUR_WEBSITE_BUCKET/
 - 该版本没有对应安装包时（例如 Linux、HarmonyOS），菜单里显示「暂未发布」，不提供任何跳转页面的下载按钮。
 - 之前的同域代理（`/dl/...` 边缘函数）已移除：链路并不比直连快，还多一次边缘回源。
 
+## 下载镜像（可选，构建时开关）
+
+GitHub Actions 抓取最新 Release 的安装包传到 OSS（`cn-zhangjiakou`），ECS 通过 **OSS 内网端点** 拉取并落盘缓存，ESA 在边缘再缓存一层。构建时设置环境变量即可切换：
+
+```
+NEXT_PUBLIC_DL_BASE=https://dl.aeoform.com
+```
+
+未设置时链接仍指向 GitHub 的 `releases/latest/download/...`，因此镜像没就绪也不会中断下载。流水线、nginx 模板和运维步骤见 `deploy/download-origin/`。
+
 ## 缓存和发布
 
 - `/_next/static/*`：`Cache-Control: public, max-age=31536000, immutable`。

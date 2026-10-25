@@ -1,0 +1,81 @@
+name: Mirror release assets to OSS
+
+# GitHub Actions egress is fast; the Zhangjiakou ECS is not (≈20 KB/s from
+# GitHub). So CI downloads the assets once and pushes them to OSS, where the
+# ECS can pull them over the free internal endpoint and ESA caches the result.
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  REPO: Open-Less/openless
+  # Assets worth mirroring; signatures and update manifests stay opt-in.
+  PATTERNS: "*.dmg *.exe *.msi *.deb *.rpm *.apk SHA256SUMS"
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve latest stable release
+        id: rel
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${REPO}/releases?per_page=10"
+          tag=$(curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" "$api" \
+            | jq -r '[.[] | select(.draft == false and .prerelease == false)][0].tag_name')
+          test -n "$tag" && test "$tag" != "null"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "resolved $tag"
+
+      - name: Download assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.rel.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          api="https://api.github.com/repos/${REPO}/releases/tags/${TAG}"
+          curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" "$api" \
+            | jq -r '.assets[].browser_download_url' > urls.txt
+          # Keep only the installer set.
+          : > keep.txt
+          for pattern in $PATTERNS; do
+            grep -E "/${pattern//\*/[^/]*}$" urls.txt >> keep.txt || true
+          done
+          sort -u keep.txt -o keep.txt
+          test -s keep.txt || { echo "no matching assets"; exit 1; }
+          while read -r url; do
+            echo "→ $(basename "$url")"
+            curl -fsSL --retry 3 -o "staging/$(basename "$url")" "$url"
+          done < keep.txt
+          ls -lh staging
+
+      - name: Upload to OSS
+        env:
+          TAG: ${{ steps.rel.outputs.tag }}
+          OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
+          OSS_AK: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          OSS_SK: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        run: |
+          set -euo pipefail
+          test -n "${OSS_BUCKET:-}" && test -n "${OSS_AK:-}" && test -n "${OSS_SK:-}"
+          curl -fsSL https://downloads.rclone.org/rclone-current-linux-amd64.zip -o rclone.zip
+          unzip -q rclone.zip
+          RCLONE=./rclone-*-linux-amd64/rclone
+          chmod +x $RCLONE
+          export RCLONE_CONFIG_OSS_TYPE=s3
+          export RCLONE_CONFIG_OSS_PROVIDER=Alibaba
+          export RCLONE_CONFIG_OSS_ACCESS_KEY_ID="$OSS_AK"
+          export RCLONE_CONFIG_OSS_SECRET_ACCESS_KEY="$OSS_SK"
+          export RCLONE_CONFIG_OSS_ENDPOINT="oss-cn-zhangjiakou.aliyuncs.com"
+          export RCLONE_CONFIG_OSS_ACL=public-read
+          $RCLONE copy staging "oss:${OSS_BUCKET}/releases/${TAG}" --checksum --stats-one-line
+          echo "{\"tag\":\"${TAG}\",\"mirroredAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > latest.json
+          $RCLONE copyto latest.json "oss:${OSS_BUCKET}/releases/latest.json"

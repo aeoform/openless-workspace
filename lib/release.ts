@@ -120,8 +120,17 @@ const serverKey = () => "other:unknown";
 export const RELEASES_PAGE = "https://github.com/Open-Less/openless/releases";
 export const LATEST_RELEASE = "https://github.com/Open-Less/openless/releases/latest";
 
-/** `latest/download/<file>` always resolves against the newest release. */
-export function latestAssetUrl(name: string): string {
+/**
+ * Optional mirror base (e.g. https://dl.openless.top). When set at build time,
+ * downloads come from our own OSS-backed origin behind ESA instead of GitHub.
+ */
+const DL_BASE = process.env.NEXT_PUBLIC_DL_BASE?.replace(/\/$/, "") ?? "";
+
+export function assetUrl(name: string, tag?: string | null): string {
+  if (DL_BASE && tag) {
+    return `${DL_BASE}/releases/${encodeURIComponent(tag)}/${encodeURIComponent(name)}`;
+  }
+  // Fallback: GitHub's latest alias always resolves to the newest release.
   return `${LATEST_RELEASE}/download/${encodeURIComponent(name)}`;
 }
 
@@ -139,7 +148,7 @@ function option(
     os,
     arch,
     group,
-    href: asset ? latestAssetUrl(asset.name) : null,
+    href: asset ? assetUrl(asset.name, release?.tag) : null,
     size: asset?.size ?? null,
     recommended: false,
   };
