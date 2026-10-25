@@ -14,7 +14,7 @@ Next.js 静态官网，中英文切换和浏览器动画不依赖服务端。风
 2. 该脚本作为 `prebuild` 自动执行，GitHub Actions 与阿里云 ESA 构建都会跑；`.github/workflows/refresh-release.yml` 另外每 6 小时刷新快照并提交。
 3. 拉取失败时保留已提交的快照，构建不会失败；没有快照时退回 `releases/latest`。
 4. 前端读取同源 `/release.json`（无需跨域），按 `navigator.userAgent` / `userAgentData` 判断系统和架构，首屏按钮直接指向对应安装包。Safari、Firefox 拿不到 CPU 架构，macOS 会同时提供 Apple Silicon 与 Intel 两个包。
-5. 下载区列出 6 个平台（macOS Apple Silicon / macOS Intel / Windows / Linux deb·rpm / Android / HarmonyOS），检测到的平台标「推荐」，其余平台同样可以直接下载；Release 里缺失的包会显示为暂未发布，Android 还提供 armeabi-v7a、x86_64、x86 三个 ABI。
+5. 首页与安装区使用拆分按钮：主按钮按当前系统给本平台安装包，右侧向下箭头展开完整菜单（macOS Apple Silicon / Intel、Windows exe·MSI、Linux deb·rpm、Android 四个 ABI、HarmonyOS），任何平台都能直接下载；缺失的包显示为暂未发布。
 6. 构建会把 `public/release.json` 直接打进 HTML，首屏就带真实安装包链接，运行时再刷新一次。
 
 手动刷新快照：`pnpm release:sync`。
@@ -89,6 +89,22 @@ ossutil cp -r out/ oss://YOUR_WEBSITE_BUCKET/
 - COS 配置首页 index.html、错误页 404.html，上传全部产物。
 - 使用已认证的 COSCLI 可执行 `coscli cp -r out/ cos://YOUR_WEBSITE_BUCKET/`，先通过当前 CLI 的 help 确认目录上传语义。
 - 配置 HTTPS、DNS、访问权限、回源和备案要求。
+
+## 下载代理（本域名加速）
+
+安装包不跳转 github.com，而是走本站域名的同源代理：
+
+```
+https://openless.top/dl/<tag>/<asset-name>
+        → https://github.com/Open-Less/openless/releases/download/<tag>/<asset-name>
+```
+
+- 实现在 `edge/download-proxy.js`，由 `esa.jsonc` 的 `entry` 挂到 ESA 边缘函数。
+- 只代理本仓库 release 路径，tag 与文件名都做正则校验，不能当开放代理用；方法限于 GET/HEAD，支持 Range 续传。
+- 响应带 `Content-Disposition: attachment`，浏览器直接开始下载；不可变 URL 缓存 1 天。
+- 下拉菜单里仍保留「GitHub 直链」作为代理不可用时的兜底。
+- 本地 `python -m http.server` 或 `next start` 预览时没有边缘函数，`/dl/...` 会是 404，请用直链或部署后验证。
+- 未配置边缘函数时页面仍可构建；只是所有下载链接会失败，因此不要删除 `entry`。
 
 ## 缓存和发布
 

@@ -10,7 +10,7 @@ export const i18nContent = {
     },
     hero: {
       cta_download: "下载 macOS / Windows / Linux",
-      cta_version: "macOS · Windows · Linux · Android · AGPL-3.0",
+      cta_version: "macOS · Windows · Linux · Android · HarmonyOS · AGPL-3.0",
       vision:
         "开源、本地优先、属于你的语音输入。\n按下热键，说话，在光标处获得一段打磨干净的提示词。",
     },
@@ -92,19 +92,12 @@ export const i18nContent = {
       ],
     },
     platforms: {
-      eyebrow: "全部平台",
-      title: "六个平台，同一个版本号。",
-      sub: "按你的系统推荐安装包，也可以直接下载其他平台的版本 —— 同一个 GitHub Release、同一份 SHA256SUMS。",
       recommended: "推荐",
       download: "下载",
       allReleases: "所有版本",
-      latest: "最新版",
       notAvailable: "该平台安装包尚未随此版本发布",
-      otherBuilds: "其他构建",
       checksums: "SHA256SUMS",
-      macArchNote: "浏览器无法报告芯片型号时默认选 Apple Silicon；Intel 机型请下载另一个包。",
       harmonyPending: "鸿蒙宿主开发中，暂无公开安装包",
-      harmonyLink: "查看进度",
     },
     roadmap: {
       eyebrow: "Roadmap",
@@ -154,6 +147,9 @@ export const i18nContent = {
       allReleases: "所有版本",
       checksums: "SHA256 校验",
       allPlatforms: "所有平台安装包",
+      choose: "选择平台",
+      direct: "GitHub 直链",
+      accelerated: "经本站代理加速",
       detectedHint: "已按当前系统选择安装包。",
       steps: [
         {
@@ -210,7 +206,7 @@ export const i18nContent = {
     },
     hero: {
       cta_download: "Download for macOS / Windows / Linux",
-      cta_version: "macOS · Windows · Linux · Android · AGPL-3.0",
+      cta_version: "macOS · Windows · Linux · Android · HarmonyOS · AGPL-3.0",
       vision:
         "Open-source, local-first voice input that belongs to you.\nPress a hotkey, talk, get a polished prompt at your cursor.",
     },
@@ -292,19 +288,12 @@ export const i18nContent = {
       ],
     },
     platforms: {
-      eyebrow: "All platforms",
-      title: "Six platforms, one version number.",
-      sub: "We preselect your installer, but every other platform is downloadable from the same GitHub release with the same SHA256SUMS.",
       recommended: "Recommended",
       download: "Download",
       allReleases: "All releases",
-      latest: "Latest",
       notAvailable: "No package for this platform in the current release yet",
-      otherBuilds: "Other builds",
       checksums: "SHA256SUMS",
-      macArchNote: "Browsers cannot report the chip, so Apple Silicon is preselected — Intel Macs should take the other file.",
       harmonyPending: "HarmonyOS host is in development; no public package yet",
-      harmonyLink: "See progress",
     },
     roadmap: {
       eyebrow: "Roadmap",
@@ -354,6 +343,9 @@ export const i18nContent = {
       allReleases: "All releases",
       checksums: "SHA256 checksums",
       allPlatforms: "All platform installers",
+      choose: "Choose platform",
+      direct: "Direct GitHub",
+      accelerated: "Proxied via this site",
       detectedHint: "Installer selected for the system you are using.",
       steps: [
         {

@@ -1,16 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AppleIcon, DownloadIcon, LinuxIcon, WindowsIcon } from "@/components/icons";
+import { DownloadIcon } from "@/components/icons";
+import { DownloadButton } from "@/components/download-button";
 import { REPO_URL } from "@/lib/site";
-import { useDownloadTargets, type AssetSlot } from "@/lib/release";
+import { useDownloadState } from "@/lib/release";
 import { useI18n } from "@/components/i18n-provider";
-
-function TargetIcon({ slot }: { slot: AssetSlot }) {
-  if (slot.startsWith("macos")) return <AppleIcon />;
-  if (slot.startsWith("windows")) return <WindowsIcon />;
-  return <LinuxIcon />;
-}
 
 function StepArt({ index }: { index: number }) {
   if (index === 0) {
@@ -42,7 +37,7 @@ function StepArt({ index }: { index: number }) {
 
 export function DownloadSteps() {
   const { t } = useI18n();
-  const { version, publishedAt, href, checksums, primary } = useDownloadTargets();
+  const { version, publishedAt, releasesHref, checksumsHref } = useDownloadState();
   const wrapRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -139,36 +134,21 @@ export function DownloadSteps() {
                   </p>
                 )}
                 <div className="dl-actions">
-                  {primary ? (
-                    <a className="ol-btn ol-btn-primary" href={primary.href} target="_blank" rel="noreferrer">
-                      <TargetIcon slot={primary.id} />
-                      {primary.label}
-                      <span className="dl-badge">{t.download.recommended}</span>
-                    </a>
-                  ) : (
-                    <a className="ol-btn ol-btn-primary" href={href} target="_blank" rel="noreferrer">
-                      <DownloadIcon />
-                      {t.download.allReleases}
-                    </a>
-                  )}
-                  <a className="ol-btn ol-btn-ghost" href="#platforms">
-                    {t.download.allPlatforms}
-                  </a>
+                  <DownloadButton variant="dark" />
                 </div>
                 <div className="dl-links">
-                  <a href={href} target="_blank" rel="noreferrer">
+                  <a href={releasesHref} target="_blank" rel="noreferrer">
                     {t.download.allReleases} ↗
                   </a>
-                  {checksums && (
-                    <a href={checksums.href} target="_blank" rel="noreferrer">
-                      {t.download.checksums} ↗
+                  {checksumsHref && (
+                    <a href={checksumsHref} download>
+                      {t.download.checksums} ↓
                     </a>
                   )}
                   <a href={REPO_URL} target="_blank" rel="noreferrer">
                     GitHub ↗
                   </a>
                 </div>
-                {primary && <p className="dl-detected ol-mono">{t.download.detectedHint}</p>}
               </div>
             </div>
           </div>

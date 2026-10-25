@@ -27,6 +27,24 @@ export type ReleaseInfo = {
   assets: Partial<Record<AssetSlot, ReleaseAsset>>;
 };
 
+export type Platform = "macos" | "windows" | "linux" | "other";
+export type Arch = "arm64" | "x64" | "unknown";
+
+export type Group = "macos" | "windows" | "linux" | "android" | "harmony";
+
+export type PlatformOption = {
+  key: string;
+  os: string;
+  arch: string;
+  group: Group;
+  /** Same-origin proxy URL; null when the release has no package for this slot. */
+  href: string | null;
+  /** github.com fallback, used if the edge proxy is unavailable. */
+  directHref: string | null;
+  size: number | null;
+  recommended: boolean;
+};
+
 let snapshot: ReleaseInfo | null = staticRelease;
 let started = false;
 const listeners = new Set<() => void>();
@@ -35,7 +53,7 @@ function emit() {
   for (const listener of listeners) listener();
 }
 
-/** Loaded once per session, shared by every consumer. */
+/** Refreshed once per session; the build-time snapshot already renders in HTML. */
 function start() {
   if (started || typeof window === "undefined") return;
   started = true;
@@ -48,7 +66,7 @@ function start() {
       emit();
     })
     .catch(() => {
-      // Offline or blocked: keep the static fallback links.
+      // Offline or blocked: keep the build-time snapshot.
     });
 }
 
@@ -67,9 +85,6 @@ export function useLatestRelease(): ReleaseInfo | null {
 }
 
 const noopSubscribe = () => () => {};
-
-export type Platform = "macos" | "windows" | "linux" | "other";
-export type Arch = "arm64" | "x64" | "unknown";
 
 function detectPlatform(): Platform {
   if (typeof navigator === "undefined") return "other";
@@ -92,7 +107,7 @@ function detectArch(platform: Platform): Arch {
   return "x64";
 }
 
-/** Stable string key so useSyncExternalStore does not see a new object each render. */
+/** Stable string key so useSyncExternalStore does not see a new value each render. */
 function detectKey(): string {
   const platform = detectPlatform();
   return `${platform}:${detectArch(platform)}`;
@@ -100,83 +115,121 @@ function detectKey(): string {
 
 const serverKey = () => "other:unknown";
 
-export type DownloadTarget = {
-  id: AssetSlot;
-  /** Platform label shown in the UI. */
-  label: string;
-  short: string;
-  href: string;
-  direct: boolean;
-  recommended: boolean;
-};
+export const RELEASES_PAGE = "https://github.com/Open-Less/openless/releases";
 
-export type DownloadTargets = {
-  version: string | null;
-  tag: string | null;
-  publishedAt: string | null;
-  detected: Platform;
-  /** Direct installer for the detected platform, or null when we cannot tell. */
-  primary: DownloadTarget | null;
-  targets: DownloadTarget[];
-  /** GitHub releases page, used for "all versions" and as a safe fallback. */
-  href: string;
-  checksums: DownloadTarget | null;
-};
-
-const RELEASES_PAGE = "https://github.com/Open-Less/openless/releases/latest";
-
-function assetUrl(release: ReleaseInfo | null, slot: AssetSlot): { href: string; direct: boolean } {
+/** Download through this domain so the file does not bounce the user to GitHub. */
+export function proxyHref(release: ReleaseInfo | null, slot: AssetSlot): string | null {
   const asset = release?.assets?.[slot];
-  if (asset?.url) return { href: asset.url, direct: true };
-  return { href: release?.htmlUrl ?? RELEASES_PAGE, direct: false };
+  if (!asset || !release?.tag) return null;
+  return `/dl/${release.tag}/${encodeURIComponent(asset.name)}`;
 }
 
-function buildTarget(release: ReleaseInfo | null, slot: AssetSlot, label: string, short: string): DownloadTarget {
-  const { href, direct } = assetUrl(release, slot);
-  return { id: slot, label, short, href, direct, recommended: false };
+function option(
+  release: ReleaseInfo | null,
+  slot: AssetSlot,
+  key: string,
+  os: string,
+  arch: string,
+  group: Group,
+): PlatformOption {
+  const asset = release?.assets?.[slot];
+  return {
+    key,
+    os,
+    arch,
+    group,
+    href: proxyHref(release, slot),
+    directHref: asset?.url ?? null,
+    size: asset?.size ?? null,
+    recommended: false,
+  };
 }
 
-export function useDownloadTargets(): DownloadTargets {
+const SLOT_RECOMMENDATION: Record<string, AssetSlot> = {
+  "macos:arm64": "macosArm",
+  "macos:x64": "macosIntel",
+  "macos:unknown": "macosArm",
+  "windows:x64": "windowsX64",
+  "windows:unknown": "windowsX64",
+  "linux:x64": "linuxDeb",
+  "linux:arm64": "linuxDeb",
+  "linux:unknown": "linuxDeb",
+  "other:x64": "macosArm",
+  "other:arm64": "macosArm",
+  "other:unknown": "macosArm",
+};
+
+export type DownloadState = {
+  detected: Platform;
+  options: PlatformOption[];
+  recommended: PlatformOption | null;
+  version: string | null;
+  publishedAt: string | null;
+  releasesHref: string;
+  checksumsHref: string | null;
+};
+
+export function useDownloadState(): DownloadState {
   const release = useLatestRelease();
   const key = useSyncExternalStore(noopSubscribe, detectKey, serverKey);
   const [detected, arch] = key.split(":") as [Platform, Arch];
 
-  const macosArm = buildTarget(release, "macosArm", "macOS · Apple Silicon", "macOS");
-  const macosIntel = buildTarget(release, "macosIntel", "macOS · Intel", "macOS");
-  const windows = buildTarget(release, "windowsX64", "Windows x64", "Windows");
-  const linux = buildTarget(release, "linuxDeb", "Linux · deb", "Linux");
-  const linuxRpm = buildTarget(release, "linuxRpm", "Linux · rpm", "Linux");
-  const checksums = buildTarget(release, "checksums", "SHA256SUMS", "SHA256SUMS");
+  const all: PlatformOption[] = [
+    option(release, "macosArm", "mac-arm", "macOS", "Apple Silicon", "macos"),
+    option(release, "macosIntel", "mac-intel", "macOS", "Intel", "macos"),
+    option(release, "windowsX64", "win-setup", "Windows", "x64 setup.exe", "windows"),
+    option(release, "windowsMSI", "win-msi", "Windows", "x64 MSI", "windows"),
+    option(release, "linuxDeb", "linux-deb", "Linux", "deb", "linux"),
+    option(release, "linuxRpm", "linux-rpm", "Linux", "rpm", "linux"),
+    option(release, "androidArm64", "android-arm64", "Android", "arm64-v8a APK", "android"),
+    option(release, "androidArmv7", "android-armv7", "Android", "armeabi-v7a APK", "android"),
+    option(release, "androidX86_64", "android-x86_64", "Android", "x86_64 APK", "android"),
+    option(release, "androidX86", "android-x86", "Android", "x86 APK", "android"),
+    {
+      key: "harmony",
+      os: "HarmonyOS",
+      arch: "NEXT",
+      group: "harmony",
+      href: null,
+      directHref: null,
+      size: null,
+      recommended: false,
+    },
+  ];
 
-  const recommendedSlot: AssetSlot | null =
-    detected === "macos"
-      ? arch === "x64"
-        ? "macosIntel"
-        : "macosArm"
-      : detected === "windows"
-        ? "windowsX64"
-        : detected === "linux"
-          ? "linuxDeb"
-          : null;
-
-  const candidates = [macosArm, macosIntel, windows, linux];
-  // Only offer rpm when the release actually ships one.
-  if (linuxRpm.direct) candidates.push(linuxRpm);
-
-  const targets = candidates.map((target) => ({ ...target, recommended: target.id === recommendedSlot }));
-  const primary = targets.find((target) => target.recommended) ?? null;
-  const href = release?.htmlUrl ?? RELEASES_PAGE;
+  // Only the primary installer of each platform is preselected, never the extras.
+  const wanted = SLOT_RECOMMENDATION[`${detected}:${arch}`];
+  const options = all.map((entry) => {
+    const slot = entry.key === "harmony" ? null : (entry.key as string);
+    const isPrimarySlot = slot !== null && entry.directHref !== null;
+    return { ...entry, recommended: isPrimarySlot && matchesSlot(entry, wanted) };
+  });
+  options.sort((a, b) => Number(b.recommended) - Number(a.recommended));
 
   return {
-    version: release?.version ?? null,
-    tag: release?.tag ?? null,
-    publishedAt: release?.publishedAt ?? null,
     detected,
-    primary,
-    targets,
-    href,
-    checksums: checksums.direct ? checksums : null,
+    options,
+    recommended: options.find((entry) => entry.recommended) ?? null,
+    version: release?.version ?? null,
+    publishedAt: release?.publishedAt ?? null,
+    releasesHref: release?.htmlUrl ?? RELEASES_PAGE,
+    checksumsHref: proxyHref(release, "checksums"),
   };
 }
 
-export { RELEASES_PAGE };
+function matchesSlot(entry: PlatformOption, slot: AssetSlot | undefined): boolean {
+  if (!slot) return false;
+  const map: Record<string, AssetSlot> = {
+    "mac-arm": "macosArm",
+    "mac-intel": "macosIntel",
+    "win-setup": "windowsX64",
+    "win-msi": "windowsMSI",
+    "linux-deb": "linuxDeb",
+    "linux-rpm": "linuxRpm",
+    "android-arm64": "androidArm64",
+    "android-armv7": "androidArmv7",
+    "android-x86_64": "androidX86_64",
+    "android-x86": "androidX86",
+  };
+  return map[entry.key] === slot;
+}

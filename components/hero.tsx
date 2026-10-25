@@ -1,19 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { DownloadIcon, GitHubIcon } from "@/components/icons";
+import { GitHubIcon } from "@/components/icons";
+import { DownloadButton } from "@/components/download-button";
 import { REPO_URL } from "@/lib/site";
-import { useDownloadTargets } from "@/lib/release";
 import { useI18n } from "@/components/i18n-provider";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { BorderBeam } from "@/components/ui/border-beam";
 
 export function Hero() {
   const { t } = useI18n();
-  const { primary, version } = useDownloadTargets();
-  const ctaLabel = primary ? `${t.download.prefix} ${primary.label}` : t.hero.cta_download;
-  const ctaHref = primary?.href ?? "#download";
-  const meta = version ? `v${version} · macOS · Windows · Linux · Android · AGPL-3.0` : t.hero.cta_version;
+  const meta = t.hero.cta_version;
 
   return (
     <section className="ol-section first hero">
@@ -34,10 +31,7 @@ export function Hero() {
           <p className="hero-vision">{t.hero.vision}</p>
 
           <div className="hero-ctas">
-            <a href={ctaHref} className="ol-btn ol-btn-primary">
-              <DownloadIcon />
-              {ctaLabel}
-            </a>
+            <DownloadButton />
             <a href={REPO_URL} target="_blank" rel="noreferrer" className="ol-btn ol-btn-ghost">
               <GitHubIcon />
               GitHub
