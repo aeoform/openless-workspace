@@ -126,7 +126,7 @@ export const RELEASES_PAGE = "https://github.com/Open-Less/openless/releases";
 export const LATEST_RELEASE = "https://github.com/Open-Less/openless/releases/latest";
 
 /**
- * Optional mirror base (e.g. https://dl.openless.top). When set at build time,
+ * Optional mirror base (e.g. https://dl.aeoform.com). When set at build time,
  * downloads come from our own OSS-backed origin behind ESA instead of GitHub.
  */
 const DL_BASE = process.env.NEXT_PUBLIC_DL_BASE?.replace(/\/$/, "") ?? "";

@@ -1,3 +1,13 @@
+/**
+ * Public origin of this site, used for canonical URLs, Open Graph, JSON-LD,
+ * robots.txt and sitemap.xml.
+ *
+ * The site is developed on aeoform.com and will move to openless.top, so this is
+ * build-time configuration: set NEXT_PUBLIC_SITE_URL in the ESA Pages project
+ * and everything above follows. No absolute URL is hardcoded elsewhere.
+ */
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://aeoform.com").replace(/\/$/, "");
+
 export const REPO_URL = "https://github.com/Open-Less/openless";
 export const RELEASES_URL = `${REPO_URL}/releases`;
 export const LATEST_RELEASE_URL = `${REPO_URL}/releases/latest`;
