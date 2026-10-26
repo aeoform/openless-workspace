@@ -86,11 +86,12 @@ jobs:
       - name: Stage channel aliases
         run: |
           set -euo pipefail
-          grep -v beta keep.txt | sort -V | tail -1 > stable.txt
-          grep beta keep.txt | sort -V | tail -1 > beta.txt || true
+          # Tag names use "Beta" with a capital B.
+          grep -vi beta keep.txt | sort -V | tail -1 > stable.txt || true
+          grep -i beta keep.txt | sort -V | tail -1 > beta.txt || true
           mkdir -p channels/stable channels/beta
-          stable=$(cat stable.txt)
-          beta=$(cat beta.txt || true)
+          stable=$(cat stable.txt 2>/dev/null || echo)
+          beta=$(cat beta.txt 2>/dev/null || echo)
           if [ -n "$stable" ] && [ -d "stage/$stable" ]; then
             find "stage/$stable" -maxdepth 1 -name 'latest-*.json' ! -name '*-beta*' \
               -exec cp {} channels/stable/ \;
@@ -99,7 +100,8 @@ jobs:
             find "stage/$beta" -maxdepth 1 -name '*-beta.json' -exec cp {} channels/beta/ \;
           fi
           echo "stable=${stable:-none} beta=${beta:-none}"
-          ls channels/stable channels/beta
+          ls -l channels/stable channels/beta
+          test -n "$(ls -A channels/stable)" || { echo "no stable manifests staged"; exit 1; }
 
       - name: Upload to OSS
         run: |
