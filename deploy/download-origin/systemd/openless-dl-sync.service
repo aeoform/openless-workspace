@@ -1,0 +1,11 @@
+[Unit]
+Description=Sync OpenLess download mirror from OSS
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/openless-dl/sync.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
