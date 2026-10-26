@@ -22,7 +22,8 @@ function size(bytes: number | null): string {
 
 export function DownloadButton({ variant = "light" }: { variant?: "light" | "dark" }) {
   const { t } = useI18n();
-  const { options, recommended, version, releasesHref, checksumsHref, mirror } = useDownloadState();
+  const { options, betaOptions, betaVersion, recommended, version, releasesHref, checksumsHref, mirror } =
+    useDownloadState();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -104,6 +105,18 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
             </div>
           ))}
 
+          {betaOptions.length > 0 && (
+            <div className="dl-menu-group">
+              <span className="dl-menu-group-label ol-mono">
+                {t.downloadPage.betaTitle}
+                {betaVersion ? ` · v${betaVersion}` : ""}
+              </span>
+              {betaOptions.map((entry) => (
+                <MenuRow key={entry.key} entry={entry} beta onNavigate={() => setOpen(false)} />
+              ))}
+            </div>
+          )}
+
           <div className="dl-menu-foot">
             <a href={releasesHref} target="_blank" rel="noreferrer">
               {t.platforms.allReleases} ↗
@@ -150,6 +163,7 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
         .dl-row-main { flex: 1; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
         .dl-row-arch { font-size: 13px; }
         .dl-row-size { font-size: 11px; color: var(--ol-muted-2); }
+        .dl-row-badge.is-beta { background: var(--ol-bg-tint); color: var(--ol-ink-2); }
         .dl-row-badge { font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: var(--ol-blue); color: #fff; }
         .dl-row-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .dl-row-get { font-size: 12px; color: var(--ol-blue); white-space: nowrap; }
@@ -177,7 +191,15 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
   );
 }
 
-function MenuRow({ entry, onNavigate }: { entry: PlatformOption; onNavigate: () => void }) {
+function MenuRow({
+  entry,
+  beta = false,
+  onNavigate,
+}: {
+  entry: PlatformOption;
+  beta?: boolean;
+  onNavigate: () => void;
+}) {
   const { t } = useI18n();
   const pending = !entry.href;
 
@@ -187,6 +209,7 @@ function MenuRow({ entry, onNavigate }: { entry: PlatformOption; onNavigate: () 
         <span className="dl-row-arch">{entry.arch}</span>
         {entry.size ? <span className="dl-row-size ol-mono">{size(entry.size)}</span> : null}
         {entry.recommended && <span className="dl-row-badge">{t.platforms.recommended}</span>}
+        {beta && <span className="dl-row-badge is-beta">{t.platforms.beta}</span>}
       </div>
 
       {pending ? (

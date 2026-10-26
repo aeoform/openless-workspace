@@ -16,15 +16,20 @@ export type AssetSlot =
 
 export type ReleaseAsset = { name: string; url: string; size: number };
 
-export type ReleaseInfo = {
-  repo: string;
+/** One channel (stable or pre-release) of the upstream repository. */
+export type ReleaseChannel = {
   tag: string | null;
   version: string | null;
   publishedAt: string | null;
   htmlUrl: string;
+  assets: Partial<Record<AssetSlot, ReleaseAsset>>;
+};
+
+export type ReleaseInfo = ReleaseChannel & {
+  repo: string;
   fetchedAt: string;
   source: "github-api" | "fallback";
-  assets: Partial<Record<AssetSlot, ReleaseAsset>>;
+  beta: ReleaseChannel | null;
 };
 
 export type Platform = "macos" | "windows" | "linux" | "other";
@@ -208,6 +213,10 @@ const SLOT_RECOMMENDATION: Record<string, AssetSlot> = {
 
 export type DownloadState = {
   detected: Platform;
+  /** Options missing from the stable channel but present in the pre-release. */
+  betaOptions: PlatformOption[];
+  betaVersion: string | null;
+  betaPublishedAt: string | null;
   options: PlatformOption[];
   recommended: PlatformOption | null;
   version: string | null;
@@ -246,6 +255,43 @@ export function useDownloadState(): DownloadState {
     },
   ];
 
+  // The stable channel has lagged on Linux before, so surface anything the
+  // pre-release ships for a platform the stable channel cannot serve.
+  const betaAssets = release?.beta?.assets ?? {};
+  const betaTag = release?.beta?.tag ?? null;
+  const BETA_SLOTS: [AssetSlot, string, string, string, Group][] = [
+    ["macosArm", "mac-arm-beta", "macOS", "Apple Silicon", "macos"],
+    ["macosIntel", "mac-intel-beta", "macOS", "Intel", "macos"],
+    ["windowsX64", "win-setup-beta", "Windows", "x64 setup.exe", "windows"],
+    ["windowsMSI", "win-msi-beta", "Windows", "x64 MSI", "windows"],
+    ["linuxDeb", "linux-deb-beta", "Linux", "deb", "linux"],
+    ["linuxRpm", "linux-rpm-beta", "Linux", "rpm", "linux"],
+    ["androidArm64", "android-arm64-beta", "Android", "arm64-v8a APK", "android"],
+    ["androidArmv7", "android-armv7-beta", "Android", "armeabi-v7a APK", "android"],
+    ["androidX86_64", "android-x86_64-beta", "Android", "x86_64 APK", "android"],
+    ["androidX86", "android-x86-beta", "Android", "x86 APK", "android"],
+  ];
+  const stableHrefs = new Map<string, boolean>();
+  for (const entry of all) {
+    if (entry.href) stableHrefs.set(entry.group, true);
+  }
+  const betaOptions: PlatformOption[] = BETA_SLOTS.flatMap(([slot, key, os, arch, group]) => {
+    if (stableHrefs.get(group)) return [];
+    const asset = betaAssets[slot];
+    if (!asset) return [];
+    return [
+      {
+        key,
+        os,
+        arch,
+        group,
+        href: assetUrl(asset.name, mirror ? betaTag : null),
+        size: asset.size ?? null,
+        recommended: false,
+      },
+    ];
+  });
+
   // Only the primary installer of each platform is preselected, never the extras.
   const wanted = SLOT_RECOMMENDATION[`${detected}:${arch}`] ?? PLATFORM_DEFAULT[detected];
   const options = all.map((entry) => ({
@@ -256,6 +302,9 @@ export function useDownloadState(): DownloadState {
 
   return {
     detected,
+    betaOptions,
+    betaVersion: release?.beta?.version ?? null,
+    betaPublishedAt: release?.beta?.publishedAt ?? null,
     mirror,
     options,
     recommended: options.find((entry) => entry.recommended) ?? null,

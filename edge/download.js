@@ -59,7 +59,7 @@ async function triggerMirror(env, tag, ctx) {
   await markDispatched(tag, ctx);
 }
 
-export default {
+const handler = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const origin = (env.DL_ORIGIN || "https://dl.aeoform.com").replace(/\/$/, "");
@@ -97,3 +97,5 @@ export default {
     });
   },
 };
+
+export default handler;

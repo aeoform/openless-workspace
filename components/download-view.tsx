@@ -21,7 +21,7 @@ function sizeLabel(bytes: number | null): string {
   return bytes ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : "";
 }
 
-function Row({ entry }: { entry: PlatformOption }) {
+function Row({ entry, beta = false }: { entry: PlatformOption; beta?: boolean }) {
   const { t } = useI18n();
   const pending = !entry.href;
 
@@ -30,6 +30,7 @@ function Row({ entry }: { entry: PlatformOption }) {
       <div className="pg-row-main">
         <span className="pg-row-arch">{entry.arch}</span>
         {entry.recommended && <span className="pg-badge">{t.platforms.recommended}</span>}
+        {beta && <span className="pg-badge is-beta">{t.platforms.beta}</span>}
       </div>
       <div className="pg-row-side">
         {pending ? (
@@ -50,7 +51,8 @@ function Row({ entry }: { entry: PlatformOption }) {
 
 export function DownloadView() {
   const { t } = useI18n();
-  const { options, version, publishedAt, checksumsHref } = useDownloadState();
+  const { options, betaOptions, betaVersion, version, publishedAt, checksumsHref } =
+    useDownloadState();
   const p = t.downloadPage;
 
   const groups = ORDER.map((group) => ({
@@ -115,6 +117,38 @@ export function DownloadView() {
             })}
           </div>
 
+          {betaOptions.length > 0 && (
+            <div className="ol-container pg-beta">
+              <div className="pg-beta-head">
+                <h2>
+                  {p.betaTitle}
+                  {betaVersion && <span className="ol-mono">v{betaVersion}</span>}
+                </h2>
+                <p>{p.betaNote}</p>
+              </div>
+              <div className="pg-grid">
+                {ORDER.map((group) => {
+                  const items = betaOptions.filter((entry) => entry.group === group);
+                  if (items.length === 0) return null;
+                  const Icon = ICONS[group];
+                  return (
+                    <section key={`beta-${group}`} className="pg-card" aria-labelledby={`pg-beta-${group}`}>
+                      <header className="pg-head">
+                        <span className="pg-icon">
+                          <Icon size={18} />
+                        </span>
+                        <h2 id={`pg-beta-${group}`}>{group === "macos" ? "macOS" : group[0].toUpperCase() + group.slice(1)}</h2>
+                      </header>
+                      {items.map((entry) => (
+                        <Row key={entry.key} entry={entry} beta />
+                      ))}
+                    </section>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="ol-container pg-foot">
             <Link href="/docs/#install" className="ol-btn ol-btn-ghost">
               {p.docsCta}
@@ -143,6 +177,12 @@ export function DownloadView() {
         .pg-badge { font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: var(--ol-blue); color: #fff; }
         .pg-pending { font-size: 11.5px; color: var(--ol-muted-2); }
         .pg-pending-block { margin: 0; color: var(--ol-muted); font-size: 13.5px; line-height: 1.6; }
+        .pg-beta { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--ol-line); }
+        .pg-beta-head { margin-bottom: 18px; }
+        .pg-beta-head h2 { margin: 0 0 8px; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .pg-beta-head h2 .ol-mono { font-size: 12px; color: var(--ol-muted-2); font-weight: 400; }
+        .pg-beta-head p { margin: 0; max-width: 640px; color: var(--ol-muted); font-size: 13.5px; line-height: 1.65; }
+        .pg-badge.is-beta { background: var(--ol-bg-tint); color: var(--ol-ink-2); border: 1px solid var(--ol-line-2); }
         .pg-foot { display: flex; justify-content: center; margin-top: 40px; }
         @media (max-width: 820px) { .pg-grid { grid-template-columns: 1fr; } }
       `}</style>
