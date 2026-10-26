@@ -22,7 +22,7 @@ function size(bytes: number | null): string {
 
 export function DownloadButton({ variant = "light" }: { variant?: "light" | "dark" }) {
   const { t } = useI18n();
-  const { options, recommended, version, releasesHref, checksumsHref } = useDownloadState();
+  const { options, recommended, version, releasesHref, checksumsHref, mirror } = useDownloadState();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -113,6 +113,11 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
                 {t.platforms.checksums} ↓
               </a>
             )}
+            {mirror && (
+              <a href={LATEST_RELEASE} target="_blank" rel="noreferrer" className="dl-menu-fallback">
+                {t.download.githubFallback}
+              </a>
+            )}
           </div>
         </div>
       )}
@@ -152,6 +157,7 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
         .dl-row-pending { font-size: 11.5px; color: var(--ol-muted-2); }
         .dl-menu-foot { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 10px; border-top: 1px solid var(--ol-line); font-size: 11.5px; color: var(--ol-muted); }
         .dl-menu-foot a:hover { color: var(--ol-blue); }
+        .dl-menu-fallback { margin-left: auto; color: var(--ol-muted-2); }
         .dl-menu-foot .ol-mono { margin-left: auto; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ol-muted-2); }
 
         .dl-split.is-dark .dl-split-main { background: #fff; }

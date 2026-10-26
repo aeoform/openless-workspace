@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { staticRelease } from "@/lib/release-static";
 
 export type AssetSlot =
@@ -141,17 +141,47 @@ function option(
   os: string,
   arch: string,
   group: Group,
+  mirror: boolean,
 ): PlatformOption {
   const asset = release?.assets?.[slot];
+  // `tag` is only honoured when the mirror answered; otherwise the GitHub alias
+  // is used, so a mirror outage degrades instead of breaking downloads.
   return {
     key,
     os,
     arch,
     group,
-    href: asset ? assetUrl(asset.name, release?.tag) : null,
+    href: asset ? assetUrl(asset.name, mirror ? release?.tag : null) : null,
     size: asset?.size ?? null,
     recommended: false,
   };
+}
+
+/**
+ * Probes the mirror once per release. Downloads prefer it (Aliyun edge + ECS
+ * cache); on failure everything silently falls back to GitHub's latest alias.
+ */
+export function useMirrorHealth(tag: string | null): boolean {
+  const [ok, setOk] = useState(Boolean(DL_BASE));
+  useEffect(() => {
+    if (!DL_BASE) return;
+    let cancelled = false;
+    const url = tag
+      ? `${DL_BASE}/releases/${encodeURIComponent(tag)}/SHA256SUMS`
+      : `${DL_BASE}/healthz`;
+    const timeout = AbortSignal.timeout?.(4000);
+    fetch(url, { method: "HEAD", ...(timeout ? { signal: timeout } : {}) })
+      .then((response) => {
+        if (!cancelled) setOk(response.ok);
+      })
+      .catch(() => {
+        if (!cancelled) setOk(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tag]);
+  return ok;
 }
 
 /** Used when the UA gives no architecture, or reports one we did not anticipate. */
@@ -182,26 +212,29 @@ export type DownloadState = {
   recommended: PlatformOption | null;
   version: string | null;
   publishedAt: string | null;
+  /** Whether the mirror answered; when false all hrefs are GitHub links. */
+  mirror: boolean;
   releasesHref: string;
   checksumsHref: string | null;
 };
 
 export function useDownloadState(): DownloadState {
   const release = useLatestRelease();
+  const mirror = useMirrorHealth(release?.tag ?? null);
   const key = useSyncExternalStore(noopSubscribe, detectKey, serverKey);
   const [detected, arch] = key.split(":") as [Platform, Arch];
 
   const all: PlatformOption[] = [
-    option(release, "macosArm", "mac-arm", "macOS", "Apple Silicon", "macos"),
-    option(release, "macosIntel", "mac-intel", "macOS", "Intel", "macos"),
-    option(release, "windowsX64", "win-setup", "Windows", "x64 setup.exe", "windows"),
-    option(release, "windowsMSI", "win-msi", "Windows", "x64 MSI", "windows"),
-    option(release, "linuxDeb", "linux-deb", "Linux", "deb", "linux"),
-    option(release, "linuxRpm", "linux-rpm", "Linux", "rpm", "linux"),
-    option(release, "androidArm64", "android-arm64", "Android", "arm64-v8a APK", "android"),
-    option(release, "androidArmv7", "android-armv7", "Android", "armeabi-v7a APK", "android"),
-    option(release, "androidX86_64", "android-x86_64", "Android", "x86_64 APK", "android"),
-    option(release, "androidX86", "android-x86", "Android", "x86 APK", "android"),
+    option(release, "macosArm", "mac-arm", "macOS", "Apple Silicon", "macos", mirror),
+    option(release, "macosIntel", "mac-intel", "macOS", "Intel", "macos", mirror),
+    option(release, "windowsX64", "win-setup", "Windows", "x64 setup.exe", "windows", mirror),
+    option(release, "windowsMSI", "win-msi", "Windows", "x64 MSI", "windows", mirror),
+    option(release, "linuxDeb", "linux-deb", "Linux", "deb", "linux", mirror),
+    option(release, "linuxRpm", "linux-rpm", "Linux", "rpm", "linux", mirror),
+    option(release, "androidArm64", "android-arm64", "Android", "arm64-v8a APK", "android", mirror),
+    option(release, "androidArmv7", "android-armv7", "Android", "armeabi-v7a APK", "android", mirror),
+    option(release, "androidX86_64", "android-x86_64", "Android", "x86_64 APK", "android", mirror),
+    option(release, "androidX86", "android-x86", "Android", "x86 APK", "android", mirror),
     {
       key: "harmony",
       os: "HarmonyOS",
@@ -223,12 +256,15 @@ export function useDownloadState(): DownloadState {
 
   return {
     detected,
+    mirror,
     options,
     recommended: options.find((entry) => entry.recommended) ?? null,
     version: release?.version ?? null,
     publishedAt: release?.publishedAt ?? null,
     releasesHref: release?.htmlUrl ?? LATEST_RELEASE,
-    checksumsHref: release?.assets?.checksums?.url ?? null,
+    checksumsHref: release?.assets?.checksums
+      ? assetUrl(release.assets.checksums.name, mirror ? release.tag : null)
+      : null,
   };
 }
 
