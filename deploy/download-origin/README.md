@@ -6,6 +6,22 @@
 用户 → ESA（dl.aeoform.com，边缘缓存）→ ECS nginx（proxy_cache）→ OSS 内网端点
 ```
 
+## 保留策略
+
+OSS 里保留**最新 3 个正式版 + 3 个预发布版**的 tag 目录（`mirror-release.yml` 每 2 小时对齐并清理更旧的），
+当前实测占用约 3.1 GB。tag 目录不可变，所以对象带 `Cache-Control: immutable`，ESA 可以缓存一年。
+
+## 按需触发
+
+`edge/download.js` 是给 ESA Pages 用的边缘函数，路由 `/dl/*`：
+命中镜像 → 302 到镜像地址；未命中 → 每 tag 每 10 分钟最多触发一次 `mirror-release`
+（`repository_dispatch`），当次访客先回落到 GitHub 的 latest 别名。
+
+启用需要在 ESA 控制台：函数 → 上传 `edge/download.js` → 路由 `/dl/*` → 环境变量
+`DL_ORIGIN`、`GH_REPO`、`GH_DISPATCH_TOKEN`（PAT，`contents: read` + `actions: write`）。
+
+站点默认不走这层：链接直接是镜像的不可变地址，少一跳就是快。
+
 ## 为什么这样分层
 
 在这台 ECS 上实测：从 GitHub 拉资产只有约 **20 KB/s**，而到 OSS 内网端点是同区域内网。

@@ -118,7 +118,9 @@ GitHub Actions 抓取最新 Release 的安装包传到 OSS（`cn-zhangjiakou`）
 NEXT_PUBLIC_DL_BASE=https://dl.aeoform.com
 ```
 
-未设置时链接仍指向 GitHub 的 `releases/latest/download/...`，因此镜像没就绪也不会中断下载。流水线、nginx 模板和运维步骤见 `deploy/download-origin/`。
+未设置时链接仍指向 GitHub 的 `releases/latest/download/...`，因此镜像没就绪也不会中断下载。流水线、nginx 配置、systemd 定时同步和边缘函数见 `deploy/download-origin/`。
+
+保留策略：最新 3 个正式版 + 3 个预发布版，其余自动清理。
 
 ## 缓存和发布
 
