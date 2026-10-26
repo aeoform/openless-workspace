@@ -19,6 +19,7 @@ permissions:
 env:
   REPO: Open-Less/openless
   OSS_PREFIX: releases
+  MIRROR_BASE: https://dl.aeoform.com
   KEEP_STABLE: "3"
   KEEP_PRERELEASE: "3"
 
@@ -31,6 +32,8 @@ jobs:
       OSS_AK: ${{ secrets.OSS_ACCESS_KEY_ID }}
       OSS_SK: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Resolve tags to keep
         id: tags
         run: |
@@ -63,7 +66,8 @@ jobs:
               # Asset names carry a literal "+" (e.g. OpenLess_2.0.1+build...);
               # the download URL encodes it as %2B, so keep the two apart.
               case "$name" in
-                *.dmg|*.exe|*.msi|*.deb|*.rpm|*.apk|SHA256SUMS) ;;
+                # installers, updater payloads, updater manifests, checksums
+                *.dmg|*.exe|*.msi|*.deb|*.rpm|*.apk|*.sig|*.tar.gz|*.json|SHA256SUMS) ;;
                 *) continue ;;
               esac
               echo "→ ${tag}/${name}"
@@ -73,6 +77,29 @@ jobs:
             test -n "$(ls -A "stage/${tag}")" || { echo "empty tag ${tag}"; rmdir "stage/${tag}"; }
           done < keep.txt
           du -sh stage; ls stage
+
+      - name: Point updater manifests at the mirror
+        run: |
+          set -euo pipefail
+          python3 tools/rewrite-manifests.py stage "$MIRROR_BASE"
+
+      - name: Stage channel aliases
+        run: |
+          set -euo pipefail
+          grep -v beta keep.txt | sort -V | tail -1 > stable.txt
+          grep beta keep.txt | sort -V | tail -1 > beta.txt || true
+          mkdir -p channels/stable channels/beta
+          stable=$(cat stable.txt)
+          beta=$(cat beta.txt || true)
+          if [ -n "$stable" ] && [ -d "stage/$stable" ]; then
+            find "stage/$stable" -maxdepth 1 -name 'latest-*.json' ! -name '*-beta*' \
+              -exec cp {} channels/stable/ \;
+          fi
+          if [ -n "$beta" ] && [ -d "stage/$beta" ]; then
+            find "stage/$beta" -maxdepth 1 -name '*-beta.json' -exec cp {} channels/beta/ \;
+          fi
+          echo "stable=${stable:-none} beta=${beta:-none}"
+          ls channels/stable channels/beta
 
       - name: Upload to OSS
         run: |
@@ -91,6 +118,11 @@ jobs:
           "$RCLONE" copy stage "oss:${OSS_BUCKET}/${OSS_PREFIX}" \
             --checksum --stats-one-line \
             --header-upload "Cache-Control: public, max-age=31536000, immutable"
+          # Channel aliases live outside releases/ and stay short-lived so a new
+          # release is picked up within a minute.
+          "$RCLONE" copy channels "oss:${OSS_BUCKET}/updates" \
+            --checksum --stats-one-line \
+            --header-upload "Cache-Control: public, max-age=60"
 
       - name: Prune old tags
         run: |
