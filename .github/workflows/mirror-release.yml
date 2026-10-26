@@ -104,7 +104,8 @@ jobs:
           export RCLONE_CONFIG_OSS_ACCESS_KEY_ID="$OSS_AK"
           export RCLONE_CONFIG_OSS_SECRET_ACCESS_KEY="$OSS_SK"
           export RCLONE_CONFIG_OSS_ENDPOINT=oss-cn-zhangjiakou.aliyuncs.com
-          "$RCLONE" lsf --dirs-only "oss:${OSS_BUCKET}/${OSS_PREFIX}" > remote.txt
+          # rclone prints directories with a trailing slash; keep.txt has bare tags.
+          "$RCLONE" lsf --dirs-only "oss:${OSS_BUCKET}/${OSS_PREFIX}" | sed 's:/$::' > remote.txt
           grep -v '^$' remote.txt | while read -r dir; do
             if ! grep -qx "$dir" keep.txt; then
               echo "prune ${dir}"
