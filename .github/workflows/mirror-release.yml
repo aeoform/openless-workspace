@@ -42,19 +42,21 @@ jobs:
           set -euo pipefail
           mkdir -p staging
           api="https://api.github.com/repos/${REPO}/releases/tags/${TAG}"
+          # Asset names carry a literal "+" (e.g. OpenLess_2.0.1+build...); the
+          # download URL encodes it as %2B, so keep the two apart.
           curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" "$api" \
-            | jq -r '.assets[].browser_download_url' > urls.txt
-          # Keep only the installer set.
-          : > keep.txt
-          for pattern in $PATTERNS; do
-            grep -E "/${pattern//\*/[^/]*}$" urls.txt >> keep.txt || true
-          done
-          sort -u keep.txt -o keep.txt
-          test -s keep.txt || { echo "no matching assets"; exit 1; }
-          while read -r url; do
-            echo "→ $(basename "$url")"
-            curl -fsSL --retry 3 -o "staging/$(basename "$url")" "$url"
-          done < keep.txt
+            | jq -r '.assets[] | [.browser_download_url, .name] | @tsv' > assets.tsv
+          : > keep.tsv
+          while IFS=$'\t' read -r url name; do
+            case "$name" in
+              *.dmg|*.exe|*.msi|*.deb|*.rpm|*.apk|SHA256SUMS) printf '%s\t%s\n' "$url" "$name" >> keep.tsv ;;
+            esac
+          done < assets.tsv
+          test -s keep.tsv || { echo "no matching assets"; exit 1; }
+          while IFS=$'\t' read -r url name; do
+            echo "→ $name"
+            curl -fsSL --retry 3 -o "staging/$name" "$url"
+          done < keep.tsv
           ls -lh staging
 
       - name: Upload to OSS
