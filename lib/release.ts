@@ -129,13 +129,24 @@ export const LATEST_RELEASE = "https://github.com/Open-Less/openless/releases/la
  * Optional mirror base (e.g. https://dl.aeoform.com). When set at build time,
  * downloads come from our own OSS-backed origin behind ESA instead of GitHub.
  */
-const DL_BASE = process.env.NEXT_PUBLIC_DL_BASE?.replace(/\/$/, "") ?? "";
+const DL_BASE = (() => {
+  const configured = process.env.NEXT_PUBLIC_DL_BASE?.trim();
+  // Default to the mirror so a deployment that forgets the env var still gets
+  // fast downloads; "none" is the explicit opt-out.
+  if (!configured) return "https://dl.aeoform.com";
+  if (/^(none|off|0|false)$/i.test(configured)) return "";
+  return configured.replace(/\/$/, "");
+})();
 
-export function assetUrl(name: string, tag?: string | null): string {
-  if (DL_BASE && tag) {
+export function assetUrl(name: string, tag?: string | null, mirror = Boolean(DL_BASE)): string {
+  if (mirror && DL_BASE && tag) {
     return `${DL_BASE}/releases/${encodeURIComponent(tag)}/${encodeURIComponent(name)}`;
   }
-  // Fallback: GitHub's latest alias always resolves to the newest release.
+  // GitHub fallback must stay tag-pinned: the `latest` alias only carries the
+  // newest *stable* assets, so a beta-only file (Linux deb/rpm) 404s there.
+  if (tag) {
+    return `https://github.com/Open-Less/openless/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(name)}`;
+  }
   return `${LATEST_RELEASE}/download/${encodeURIComponent(name)}`;
 }
 
@@ -156,7 +167,7 @@ function option(
     os,
     arch,
     group,
-    href: asset ? assetUrl(asset.name, mirror ? release?.tag : null) : null,
+    href: asset ? assetUrl(asset.name, release?.tag, mirror) : null,
     size: asset?.size ?? null,
     recommended: false,
   };
@@ -285,7 +296,7 @@ export function useDownloadState(): DownloadState {
         os,
         arch,
         group,
-        href: assetUrl(asset.name, mirror ? betaTag : null),
+        href: assetUrl(asset.name, betaTag, mirror),
         size: asset.size ?? null,
         recommended: false,
       },
@@ -312,7 +323,7 @@ export function useDownloadState(): DownloadState {
     publishedAt: release?.publishedAt ?? null,
     releasesHref: release?.htmlUrl ?? LATEST_RELEASE,
     checksumsHref: release?.assets?.checksums
-      ? assetUrl(release.assets.checksums.name, mirror ? release.tag : null)
+      ? assetUrl(release.assets.checksums.name, release.tag, mirror)
       : null,
   };
 }
