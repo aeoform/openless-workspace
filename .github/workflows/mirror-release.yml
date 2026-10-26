@@ -74,8 +74,8 @@ jobs:
           export RCLONE_CONFIG_OSS_PROVIDER=Alibaba
           export RCLONE_CONFIG_OSS_ACCESS_KEY_ID="$OSS_AK"
           export RCLONE_CONFIG_OSS_SECRET_ACCESS_KEY="$OSS_SK"
+          # Bucket stays private: only the ECS sync (with this key) reads it.
           export RCLONE_CONFIG_OSS_ENDPOINT="oss-cn-zhangjiakou.aliyuncs.com"
-          export RCLONE_CONFIG_OSS_ACL=public-read
           $RCLONE copy staging "oss:${OSS_BUCKET}/releases/${TAG}" --checksum --stats-one-line
           echo "{\"tag\":\"${TAG}\",\"mirroredAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > latest.json
           $RCLONE copyto latest.json "oss:${OSS_BUCKET}/releases/latest.json"
