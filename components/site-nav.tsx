@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ArrowRight } from "@/components/icons";
 import { useI18n } from "@/components/i18n-provider";
 
@@ -14,8 +15,24 @@ export function Logo({ size = 24 }: { size?: number }) {
   );
 }
 
+const LINKS = [
+  { key: "product", href: "/" },
+  { key: "docs", href: "/docs/" },
+] as const;
+
 export function SiteNav({ active = "home" }: { active?: "home" | "docs" | "download" }) {
   const { lang, setLang, t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
     <header className="ol-nav">
@@ -30,7 +47,7 @@ export function SiteNav({ active = "home" }: { active?: "home" | "docs" | "downl
           <Link href="/docs" className={active === "docs" ? "active" : ""} aria-current={active === "docs" ? "page" : undefined}>
             {t.nav.docs}
           </Link>
-          <a href="https://github.com/Open-Less/openless" target="_blank" rel="noreferrer">
+          <a href="https://github.com/Open-Less/openless" target="_blank" rel="noreferrer" onClick={close}>
             GitHub ↗
           </a>
         </nav>
@@ -47,8 +64,43 @@ export function SiteNav({ active = "home" }: { active?: "home" | "docs" | "downl
             {t.nav.download}
             <ArrowRight className="arrow" />
           </Link>
+          <button
+            type="button"
+            className="ol-nav-burger"
+            aria-expanded={open}
+            aria-controls="ol-nav-drawer"
+            aria-label={t.nav.menu}
+            onClick={() => setOpen((value) => !value)}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
+              {open ? (
+                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {open && (
+        <div id="ol-nav-drawer" className="ol-nav-drawer">
+          {LINKS.map((link) => (
+            <Link
+              key={link.key}
+              href={link.href}
+              className={active === link.key ? "active" : ""}
+              aria-current={active === link.key ? "page" : undefined}
+              onClick={close}
+            >
+              {t.nav[link.key]}
+            </Link>
+          ))}
+          <a href="https://github.com/Open-Less/openless" target="_blank" rel="noreferrer" onClick={close}>
+            GitHub ↗
+          </a>
+        </div>
+      )}
     </header>
   );
 }

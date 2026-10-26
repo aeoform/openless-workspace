@@ -5,6 +5,7 @@ export const i18nContent = {
     nav: {
       product: "产品",
       docs: "文档",
+    menu: "菜单",
       download: "下载",
       language: "切换语言",
     },
@@ -215,6 +216,7 @@ export const i18nContent = {
     nav: {
       product: "Product",
       docs: "Docs",
+    menu: "Menu",
       download: "Download",
       language: "Switch language",
     },
