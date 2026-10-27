@@ -23,6 +23,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      # Informational: a broken mirror link should be visible in CI without
+      # turning an ESA hiccup into a failed release build.
+      - name: Probe download links
+        continue-on-error: true
+        run: pnpm check:downloads
       - uses: actions/upload-artifact@v4
         with:
           name: openless-static-site

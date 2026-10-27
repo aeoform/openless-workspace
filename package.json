@@ -13,7 +13,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "prebuild": "node scripts/fetch-release.mjs",
-    "release:sync": "node scripts/fetch-release.mjs"
+    "release:sync": "node scripts/fetch-release.mjs",
+    "check:downloads": "node scripts/check-downloads.mjs out"
   },
   "dependencies": {
     "clsx": "^2.1.1",

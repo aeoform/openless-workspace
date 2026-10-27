@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { useI18n } from "@/components/i18n-provider";
@@ -55,6 +56,27 @@ function BlockView({ block }: { block: Block }) {
 export function DocsView() {
   const { lang } = useI18n();
   const doc = docsContent[lang];
+  const [activeId, setActiveId] = useState(doc.sections[0]?.id ?? "");
+
+  // Highlight the section currently under the sticky header.
+  useEffect(() => {
+    const sections = doc.sections
+      .map((section) => document.getElementById(section.id))
+      .filter((element): element is HTMLElement => Boolean(element));
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveId(visible[0].target.id);
+      },
+      { rootMargin: "-96px 0px -65% 0px", threshold: 0 },
+    );
+    for (const section of sections) observer.observe(section);
+    return () => observer.disconnect();
+  }, [doc]);
 
   return (
     <>
@@ -78,7 +100,11 @@ export function DocsView() {
               <ol>
                 {doc.sections.map((section, index) => (
                   <li key={section.id}>
-                    <a href={`#${section.id}`}>
+                    <a
+                      href={`#${section.id}`}
+                      className={activeId === section.id ? "is-active" : ""}
+                      aria-current={activeId === section.id ? "true" : undefined}
+                    >
                       <span className="ol-mono">{String(index + 1).padStart(2, "0")}</span>
                       {section.title}
                     </a>
@@ -123,6 +149,8 @@ export function DocsView() {
         .doc-toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
         .doc-toc a { display: flex; gap: 10px; padding: 6px 8px; border-radius: 7px; font-size: 13.5px; color: var(--ol-ink-3); transition: background .15s, color .15s; }
         .doc-toc a:hover { background: var(--ol-bg-tint); color: var(--ol-ink); }
+        .doc-toc a.is-active { background: var(--ol-bg-tint); color: var(--ol-ink); font-weight: 500; }
+        .doc-toc a.is-active span { color: var(--ol-blue); }
         .doc-toc a span { font-size: 10.5px; color: var(--ol-muted-2); padding-top: 2px; }
         .doc-content { min-width: 0; display: flex; flex-direction: column; gap: 56px; }
         .doc-section { scroll-margin-top: 96px; }
