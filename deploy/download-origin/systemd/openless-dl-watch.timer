@@ -1,0 +1,11 @@
+[Unit]
+Description=Poll upstream releases every 5 minutes
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=5min
+AccuracySec=15s
+Unit=openless-dl-watch.service
+
+[Install]
+WantedBy=timers.target

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { AndroidIcon, AppleIcon, DownloadIcon, HarmonyIcon, LinuxIcon, WindowsIcon } from "@/components/icons";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
@@ -49,15 +50,56 @@ function Row({ entry, beta = false }: { entry: PlatformOption; beta?: boolean })
   );
 }
 
+function PlatformCard({
+  group,
+  items,
+  beta,
+}: {
+  group: Group;
+  items: PlatformOption[];
+  beta: boolean;
+}) {
+  const { t } = useI18n();
+  const Icon = ICONS[group];
+  const title = group === "macos" ? "macOS" : group === "harmony" ? "HarmonyOS" : group[0].toUpperCase() + group.slice(1);
+  const pendingText = group === "harmony" ? t.downloadPage.harmonyPending : t.platforms.notAvailable;
+
+  return (
+    <section className="pg-card" aria-labelledby={`pg-${beta ? "beta-" : ""}${group}`}>
+      <header className="pg-head">
+        <span className="pg-icon">
+          <Icon size={18} />
+        </span>
+        <h2 id={`pg-${beta ? "beta-" : ""}${group}`}>{title}</h2>
+      </header>
+
+      {items.length === 0 ? (
+        <p className="pg-pending-block">{pendingText}</p>
+      ) : (
+        items.map((entry) => <Row key={entry.key} entry={entry} beta={beta} />)
+      )}
+    </section>
+  );
+}
+
 export function DownloadView() {
   const { t } = useI18n();
   const { options, betaOptions, betaVersion, version, publishedAt, checksumsHref } =
     useDownloadState();
+  const [channel, setChannel] = useState<"stable" | "beta">("stable");
+  const beta = channel === "beta";
   const p = t.downloadPage;
 
-  const groups = ORDER.map((group) => ({
+  // Stable always shows every platform (pending ones included); the pre-release
+  // tab only lists what actually exists there. Both grids are rendered so the
+  // page works without JS and the link audit can see every installer.
+  const stableGroups = ORDER.map((group) => ({
     group,
     items: options.filter((entry) => entry.group === group),
+  }));
+  const betaGroups = ORDER.map((group) => ({
+    group,
+    items: betaOptions.filter((entry) => entry.group === group),
   })).filter((entry) => entry.items.length > 0);
 
   return (
@@ -94,63 +136,44 @@ export function DownloadView() {
         </section>
 
         <section className="ol-section tight">
-          <div className="ol-container pg-grid">
-            {groups.map(({ group, items }) => {
-              const Icon = ICONS[group];
-              return (
-                <section key={group} className="pg-card" aria-labelledby={`pg-${group}`}>
-                  <header className="pg-head">
-                    <span className="pg-icon">
-                      <Icon size={18} />
-                    </span>
-                    <h2 id={`pg-${group}`}>{group === "harmony" ? p.harmonyTitle : group.toUpperCase() === "MACOS" ? "macOS" : group[0].toUpperCase() + group.slice(1)}</h2>
-                  </header>
-
-                  {items.length === 0 ? (
-                    <p className="pg-pending-block">
-                      {group === "harmony" ? p.harmonyPending : t.platforms.notAvailable}
-                    </p>
-                  ) : (
-                    items.map((entry) => (
-                      <Row key={entry.key} entry={entry} beta={group === "harmony"} />
-                    ))
-                  )}
-                </section>
-              );
-            })}
+          <div className="ol-container pg-channels">
+            <div className="pg-tabs" role="tablist" aria-label={p.stableTitle}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={!beta}
+                className={!beta ? "is-on" : ""}
+                onClick={() => setChannel("stable")}
+              >
+                {p.stableTitle}
+                {version && <span className="ol-mono">v{version}</span>}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={beta}
+                className={beta ? "is-on" : ""}
+                disabled={betaOptions.length === 0}
+                onClick={() => setChannel("beta")}
+              >
+                {p.betaTitle}
+                {betaVersion && <span className="ol-mono">v{betaVersion}</span>}
+              </button>
+            </div>
+            <p className="pg-tabs-note">{beta ? p.betaNote : p.betaSwitch}</p>
           </div>
 
-          {betaOptions.length > 0 && (
-            <div className="ol-container pg-beta">
-              <div className="pg-beta-head">
-                <h2>
-                  {p.betaTitle}
-                  {betaVersion && <span className="ol-mono">v{betaVersion}</span>}
-                </h2>
-                <p>{p.betaNote}</p>
-              </div>
-              <div className="pg-grid">
-                {ORDER.map((group) => {
-                  const items = betaOptions.filter((entry) => entry.group === group);
-                  if (items.length === 0) return null;
-                  const Icon = ICONS[group];
-                  return (
-                    <section key={`beta-${group}`} className="pg-card" aria-labelledby={`pg-beta-${group}`}>
-                      <header className="pg-head">
-                        <span className="pg-icon">
-                          <Icon size={18} />
-                        </span>
-                        <h2 id={`pg-beta-${group}`}>{group === "macos" ? "macOS" : group[0].toUpperCase() + group.slice(1)}</h2>
-                      </header>
-                      {items.map((entry) => (
-                        <Row key={entry.key} entry={entry} beta />
-                      ))}
-                    </section>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <div className="ol-container pg-grid" hidden={beta}>
+            {stableGroups.map(({ group, items }) => (
+              <PlatformCard key={group} group={group} items={items} beta={false} />
+            ))}
+          </div>
+
+          <div className="ol-container pg-grid" hidden={!beta}>
+            {betaGroups.map(({ group, items }) => (
+              <PlatformCard key={`beta-${group}`} group={group} items={items} beta />
+            ))}
+          </div>
 
           <div className="ol-container pg-foot">
             <Link href="/docs/#install" className="ol-btn ol-btn-ghost">
@@ -167,6 +190,7 @@ export function DownloadView() {
         .pg-sub { margin: 20px 0 0; max-width: 620px; color: var(--ol-ink-3); font-size: 16.5px; line-height: 1.7; }
         .pg-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
         .pg-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .pg-grid[hidden] { display: none; }
         .pg-card { border: 1px solid var(--ol-line); border-radius: var(--ol-radius-lg); background: #fff; padding: 20px 22px; }
         .pg-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .pg-head h2 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; }
@@ -180,6 +204,20 @@ export function DownloadView() {
         .pg-badge { font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: var(--ol-blue); color: #fff; }
         .pg-pending { font-size: 11.5px; color: var(--ol-muted-2); }
         .pg-pending-block { margin: 0; color: var(--ol-muted); font-size: 13.5px; line-height: 1.6; }
+        .pg-channels { margin-bottom: 18px; }
+        .pg-tabs { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--ol-line-2); border-radius: 999px; background: #fff; }
+        .pg-tabs button {
+          display: inline-flex; align-items: center; gap: 8px;
+          border: 0; border-radius: 999px; background: transparent; cursor: pointer;
+          padding: 8px 16px; font-size: 13.5px; font-family: inherit; color: var(--ol-muted);
+          transition: background .15s, color .15s;
+        }
+        .pg-tabs button:hover:not(:disabled) { color: var(--ol-ink); }
+        .pg-tabs button.is-on { background: var(--ol-ink); color: #fff; }
+        .pg-tabs button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pg-tabs button .ol-mono { font-size: 11px; opacity: 0.7; }
+        .pg-tabs button:focus-visible { outline: 2px solid var(--ol-blue); outline-offset: 2px; }
+        .pg-tabs-note { margin: 12px 0 0; max-width: 640px; color: var(--ol-muted); font-size: 13px; line-height: 1.6; }
         .pg-beta { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--ol-line); }
         .pg-beta-head { margin-bottom: 18px; }
         .pg-beta-head h2 { margin: 0 0 8px; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 10px; }

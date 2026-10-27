@@ -1,0 +1,9 @@
+[Unit]
+Description=Poll upstream releases and trigger the mirror workflow
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/openless-dl/watch.sh
+Nice=15

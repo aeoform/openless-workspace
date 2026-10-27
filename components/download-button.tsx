@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { DownloadIcon } from "@/components/icons";
 import { useI18n } from "@/components/i18n-provider";
 import { LATEST_RELEASE, useDownloadState, type Group, type PlatformOption } from "@/lib/release";
@@ -22,7 +23,7 @@ function size(bytes: number | null): string {
 
 export function DownloadButton({ variant = "light" }: { variant?: "light" | "dark" }) {
   const { t } = useI18n();
-  const { options, betaOptions, betaVersion, recommended, version, releasesHref, checksumsHref, mirror } =
+  const { options, betaExtras, betaVersion, recommended, version, releasesHref, checksumsHref, mirror } =
     useDownloadState();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -105,13 +106,13 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
             </div>
           ))}
 
-          {betaOptions.length > 0 && (
+          {betaExtras.length > 0 && (
             <div className="dl-menu-group">
               <span className="dl-menu-group-label ol-mono">
                 {t.downloadPage.betaTitle}
                 {betaVersion ? ` · v${betaVersion}` : ""}
               </span>
-              {betaOptions.map((entry) => (
+              {betaExtras.map((entry) => (
                 <MenuRow key={entry.key} entry={entry} beta onNavigate={() => setOpen(false)} />
               ))}
             </div>
@@ -125,6 +126,11 @@ export function DownloadButton({ variant = "light" }: { variant?: "light" | "dar
               <a href={checksumsHref} rel="noreferrer" onClick={() => setOpen(false)}>
                 {t.platforms.checksums} ↓
               </a>
+            )}
+            {betaVersion && (
+              <Link href="/download/" onClick={() => setOpen(false)}>
+                {t.downloadPage.allBetas} ↗
+              </Link>
             )}
             {mirror && (
               <a href={LATEST_RELEASE} target="_blank" rel="noreferrer" className="dl-menu-fallback">

@@ -9,10 +9,14 @@ install -m 0644 "$SRC/nginx.conf" /etc/nginx/conf.d/openless-dl.conf
 chmod 0755 "$SRC/sync.sh"
 install -m 0644 "$SRC/openless-dl-sync.service" /etc/systemd/system/openless-dl-sync.service
 install -m 0644 "$SRC/openless-dl-sync.timer" /etc/systemd/system/openless-dl-sync.timer
+chmod 0755 "$SRC/watch.sh"
+install -m 0644 "$SRC/openless-dl-watch.service" /etc/systemd/system/openless-dl-watch.service
+install -m 0644 "$SRC/openless-dl-watch.timer" /etc/systemd/system/openless-dl-watch.timer
 
 systemctl daemon-reload
-systemctl enable --now openless-dl-sync.timer
+systemctl enable --now openless-dl-sync.timer openless-dl-watch.timer
 nginx -t
 systemctl reload nginx
 systemctl start openless-dl-sync.service || true
+systemctl start openless-dl-watch.service || true
 echo "download origin ready on :8080 (root /srv/openless-dl)"

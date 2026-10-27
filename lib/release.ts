@@ -243,8 +243,10 @@ const SLOT_RECOMMENDATION: Record<string, AssetSlot> = {
 
 export type DownloadState = {
   detected: Platform;
-  /** Options missing from the stable channel but present in the pre-release. */
+  /** Every installer the pre-release channel ships, for the /download tabs. */
   betaOptions: PlatformOption[];
+  /** Pre-release options for platforms the stable channel cannot serve at all. */
+  betaExtras: PlatformOption[];
   betaVersion: string | null;
   betaPublishedAt: string | null;
   options: PlatformOption[];
@@ -298,8 +300,8 @@ export function useDownloadState(): DownloadState {
     if (entry.href) stableHrefs.set(entry.group, true);
   }
   const betaHarmony = betaAssets.harmonyArm ?? betaAssets.harmony;
-  const betaOptions: PlatformOption[] = BETA_SLOTS.flatMap(([slot, key, os, arch, group]) => {
-    if (stableHrefs.get(group)) return [];
+  const betaWanted = SLOT_RECOMMENDATION[`${detected}:${arch}`] ?? PLATFORM_DEFAULT[detected];
+  const allBetas: PlatformOption[] = BETA_SLOTS.flatMap(([slot, key, os, arch, group]) => {
     const asset = betaAssets[slot];
     if (!asset) return [];
     return [
@@ -310,10 +312,15 @@ export function useDownloadState(): DownloadState {
         group,
         href: assetUrl(asset.name, betaTag, mirror),
         size: asset.size ?? null,
-        recommended: false,
+        recommended: stableHrefs.get(group) ? false : matchesSlot({ key } as PlatformOption, betaWanted),
       },
     ];
   });
+  const betaOptions = allBetas.map((entry) => ({
+    ...entry,
+    recommended: entry.recommended || matchesSlot(entry, betaWanted),
+  }));
+  const betaExtras = betaOptions.filter((entry) => !stableHrefs.get(entry.group));
 
   // HarmonyOS only exists as a pre-release .hap so far.
   if (!stableHrefs.get("harmony") && betaHarmony) {
@@ -339,6 +346,7 @@ export function useDownloadState(): DownloadState {
   return {
     detected,
     betaOptions,
+    betaExtras,
     betaVersion: release?.beta?.version ?? null,
     betaPublishedAt: release?.beta?.publishedAt ?? null,
     mirror,
