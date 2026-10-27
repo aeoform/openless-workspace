@@ -97,7 +97,6 @@ export function DownloadView() {
           <div className="ol-container pg-grid">
             {groups.map(({ group, items }) => {
               const Icon = ICONS[group];
-              const harmony = group === "harmony";
               return (
                 <section key={group} className="pg-card" aria-labelledby={`pg-${group}`}>
                   <header className="pg-head">
@@ -107,10 +106,14 @@ export function DownloadView() {
                     <h2 id={`pg-${group}`}>{group === "harmony" ? p.harmonyTitle : group.toUpperCase() === "MACOS" ? "macOS" : group[0].toUpperCase() + group.slice(1)}</h2>
                   </header>
 
-                  {harmony ? (
-                    <p className="pg-pending-block">{p.harmonyPending}</p>
+                  {items.length === 0 ? (
+                    <p className="pg-pending-block">
+                      {group === "harmony" ? p.harmonyPending : t.platforms.notAvailable}
+                    </p>
                   ) : (
-                    items.map((entry) => <Row key={entry.key} entry={entry} />)
+                    items.map((entry) => (
+                      <Row key={entry.key} entry={entry} beta={group === "harmony"} />
+                    ))
                   )}
                 </section>
               );

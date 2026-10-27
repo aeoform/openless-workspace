@@ -28,6 +28,9 @@ const MATCHERS = [
   ["androidArmv7", /_armeabi-v7a\.apk$/i],
   ["androidX86_64", /_x86_64\.apk$/i],
   ["androidX86", /_x86\.apk$/i],
+  // HarmonyOS ships as a sideloadable .hap; arm64 build first.
+  ["harmonyArm", /_harmony_arm64\.hap$/i],
+  ["harmony", /_harmony\.hap$/i],
   ["checksums", /^SHA256SUMS$/i],
 ];
 

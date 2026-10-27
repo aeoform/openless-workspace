@@ -99,7 +99,7 @@ export const i18nContent = {
       allReleases: "所有版本",
       notAvailable: "该平台安装包尚未随此版本发布",
       checksums: "SHA256SUMS",
-      harmonyPending: "鸿蒙宿主开发中，暂无公开安装包",
+      harmonyPending: "鸿蒙包目前只在测试版提供",
     },
     roadmap: {
       eyebrow: "Roadmap",
@@ -185,7 +185,7 @@ export const i18nContent = {
       betaTitle: "测试版",
       betaNote: "稳定版还没有这些平台的安装包，下面来自最新的预发布版本。功能是新的，稳定性不如正式版。",
       harmonyTitle: "HarmonyOS",
-      harmonyPending: "鸿蒙宿主仍在开发中，暂时没有公开安装包。",
+      harmonyPending: "鸿蒙目前只发布了测试版 .hap，需要手动侧载安装。",
     },
     cta: {
       title: "你的下一段 Prompt，\n用嘴写。",
@@ -310,7 +310,7 @@ export const i18nContent = {
       allReleases: "All releases",
       notAvailable: "No package for this platform in the current release yet",
       checksums: "SHA256SUMS",
-      harmonyPending: "HarmonyOS host is in development; no public package yet",
+      harmonyPending: "HarmonyOS is pre-release only",
     },
     roadmap: {
       eyebrow: "Roadmap",
@@ -396,7 +396,7 @@ export const i18nContent = {
       betaTitle: "Pre-release",
       betaNote: "The stable channel has no package for these platforms yet. These come from the newest pre-release: newer features, less battle-tested.",
       harmonyTitle: "HarmonyOS",
-      harmonyPending: "The HarmonyOS host is still in development; there is no public package yet.",
+      harmonyPending: "HarmonyOS only ships a pre-release .hap so far; install it by sideloading.",
     },
     cta: {
       title: "Write your next prompt\nwith your mouth.",

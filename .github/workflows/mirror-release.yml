@@ -67,7 +67,7 @@ jobs:
               # the download URL encodes it as %2B, so keep the two apart.
               case "$name" in
                 # installers, updater payloads, updater manifests, checksums
-                *.dmg|*.exe|*.msi|*.deb|*.rpm|*.apk|*.sig|*.tar.gz|*.json|SHA256SUMS) ;;
+                *.dmg|*.exe|*.msi|*.deb|*.rpm|*.apk|*.hap|*.sig|*.tar.gz|*.json|SHA256SUMS) ;;
                 *) continue ;;
               esac
               echo "→ ${tag}/${name}"

@@ -12,6 +12,8 @@ export type AssetSlot =
   | "androidArmv7"
   | "androidX86_64"
   | "androidX86"
+  | "harmonyArm"
+  | "harmony"
   | "checksums";
 
 export type ReleaseAsset = { name: string; url: string; size: number };
@@ -200,6 +202,23 @@ export function useMirrorHealth(tag: string | null): boolean {
   return ok;
 }
 
+/**
+ * HarmonyOS has only shipped as a sideloadable .hap in pre-releases so far, and
+ * both an arm64 and a universal build exist; prefer the arm64 one.
+ */
+function harmonyOption(release: ReleaseInfo | null, mirror: boolean): PlatformOption {
+  const asset = release?.assets?.harmonyArm ?? release?.assets?.harmony;
+  return {
+    key: "harmony",
+    os: "HarmonyOS",
+    arch: asset?.name.includes("arm64") ? "arm64 · .hap" : "universal · .hap",
+    group: "harmony",
+    href: asset ? assetUrl(asset.name, release?.tag, mirror) : null,
+    size: asset?.size ?? null,
+    recommended: false,
+  };
+}
+
 /** Used when the UA gives no architecture, or reports one we did not anticipate. */
 const PLATFORM_DEFAULT: Record<Platform, AssetSlot> = {
   macos: "macosArm",
@@ -255,15 +274,7 @@ export function useDownloadState(): DownloadState {
     option(release, "androidArmv7", "android-armv7", "Android", "armeabi-v7a APK", "android", mirror),
     option(release, "androidX86_64", "android-x86_64", "Android", "x86_64 APK", "android", mirror),
     option(release, "androidX86", "android-x86", "Android", "x86 APK", "android", mirror),
-    {
-      key: "harmony",
-      os: "HarmonyOS",
-      arch: "NEXT",
-      group: "harmony",
-      href: null,
-      size: null,
-      recommended: false,
-    },
+    harmonyOption(release, mirror),
   ];
 
   // The stable channel has lagged on Linux before, so surface anything the
@@ -286,6 +297,7 @@ export function useDownloadState(): DownloadState {
   for (const entry of all) {
     if (entry.href) stableHrefs.set(entry.group, true);
   }
+  const betaHarmony = betaAssets.harmonyArm ?? betaAssets.harmony;
   const betaOptions: PlatformOption[] = BETA_SLOTS.flatMap(([slot, key, os, arch, group]) => {
     if (stableHrefs.get(group)) return [];
     const asset = betaAssets[slot];
@@ -302,6 +314,19 @@ export function useDownloadState(): DownloadState {
       },
     ];
   });
+
+  // HarmonyOS only exists as a pre-release .hap so far.
+  if (!stableHrefs.get("harmony") && betaHarmony) {
+    betaOptions.push({
+      key: "harmony-beta",
+      os: "HarmonyOS",
+      arch: betaHarmony.name.includes("arm64") ? "arm64 · .hap" : "universal · .hap",
+      group: "harmony",
+      href: assetUrl(betaHarmony.name, betaTag, mirror),
+      size: betaHarmony.size ?? null,
+      recommended: false,
+    });
+  }
 
   // Only the primary installer of each platform is preselected, never the extras.
   const wanted = SLOT_RECOMMENDATION[`${detected}:${arch}`] ?? PLATFORM_DEFAULT[detected];

@@ -52,7 +52,7 @@
       "size": 3155
     }
   },
-  "fetchedAt": "2026-10-27T05:14:52.206Z",
+  "fetchedAt": "2026-10-27T12:22:55.520Z",
   "source": "github-api",
   "beta": {
     "tag": "v2.0.2-Beta.3-tauri",
@@ -97,10 +97,20 @@
         "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.3-tauri/OpenLess_2.0.2-Beta.3%2Bbuild.20261026-c9f49c60_x64-setup.exe",
         "size": 27163291
       },
+      "harmonyArm": {
+        "name": "OpenLess_harmony_arm64.hap",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.3-tauri/OpenLess_harmony_arm64.hap",
+        "size": 64653626
+      },
       "checksums": {
         "name": "SHA256SUMS",
         "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.3-tauri/SHA256SUMS",
         "size": 286
+      },
+      "harmony": {
+        "name": "OpenLess_harmony.hap",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.3-tauri/OpenLess_harmony.hap",
+        "size": 64653626
       },
       "linuxRpm": {
         "name": "OpenLess_linux_x86_64.rpm",
