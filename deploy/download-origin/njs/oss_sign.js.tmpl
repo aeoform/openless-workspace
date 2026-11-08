@@ -1,0 +1,36 @@
+// Signed-URL generator for the private OSS bucket.
+//
+// Runs inside nginx (ngx_http_js_module): no extra process, no public bucket —
+// every request is signed with a short-lived Expires and the RAM key, so only
+// this host can read the objects over the intra-region endpoint.
+//
+// __AK__ / __SK__ are substituted by apply.sh from ~/.config/rclone/rclone.conf
+// at install time; this template never contains real credentials.
+
+var crypto = require('crypto');
+
+var AK = '__AK__';
+var SK = '__SK__';
+var BUCKET = '__BUCKET__';
+var TTL = 600; // seconds; the cache keeps bytes far longer than the signature
+
+function sign(r) {
+    // OSS signs the *decoded* object name but expects it percent-encoded in the
+    // request URI, so `OpenLess_2.0.1+build…` must be signed with a literal "+"
+    // and requested as %2B. Signing the raw request_uri breaks every asset whose
+    // name contains "+".
+    var raw = r.variables.request_uri;
+    var q = raw.indexOf('?');
+    if (q !== -1) raw = raw.slice(0, q);
+    var path = decodeURIComponent(raw);     // sign the literal object name
+    var expires = String(Math.floor(Date.now() / 1000) + TTL);
+    var sts = 'GET\n\n\n' + expires + '\n/' + BUCKET + path;
+    var sig = crypto.createHmac('sha1', SK).update(sts).digest('base64');
+    var escaped = path.split('/').map(encodeURIComponent).join('/');
+    return escaped +
+        '?OSSAccessKeyId=' + AK +
+        '&Expires=' + expires +
+        '&Signature=' + encodeURIComponent(sig);
+}
+
+export default { sign };

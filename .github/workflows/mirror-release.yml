@@ -86,33 +86,24 @@ jobs:
           set -euo pipefail
           python3 tools/rewrite-manifests.py stage "$MIRROR_BASE"
 
-      - name: Stage channel aliases
+      - name: Build channel manifests
         run: |
           set -euo pipefail
-          # Never fails: an upstream release without manifests is fine, the old
-          # ones stay published in OSS.
-          grep -vi beta keep.txt | sort -V | tail -1 > stable.txt || true
-          grep -i beta keep.txt | sort -V | tail -1 > beta.txt || true
-          mkdir -p channels/stable channels/beta
-          stable=$(cat stable.txt 2>/dev/null || echo)
-          beta=$(cat beta.txt 2>/dev/null || echo)
-          if [ -n "$stable" ] && [ -d "stage/$stable" ]; then
-            find "stage/$stable" -maxdepth 1 -name 'latest-*.json' ! -name '*-beta*' \
-              -exec cp {} channels/stable/ \;
-          fi
-          if [ -n "$beta" ] && [ -d "stage/$beta" ]; then
-            find "stage/$beta" -maxdepth 1 -name '*-beta.json' -exec cp {} channels/beta/ \;
-          fi
-          # Archive: every tag's manifests kept forever, under both the current
-          # and the legacy "-mirror" names.
-          for dir in stage/*; do
-            tag=$(basename "$dir")
-            if ls "$dir"/*.json >/dev/null 2>&1; then
-              mkdir -p "channels/archive/${tag}"
-              cp "$dir"/*.json "channels/archive/${tag}/"
-            fi
-          done
+          # Tag names use "Beta" with a capital B.
+          stable=$(grep -vi beta keep.txt | sort -V | tail -1 || true)
+          beta=$(grep -i beta keep.txt | sort -V | tail -1 || true)
           echo "stable=${stable:-none} beta=${beta:-none}"
+          mkdir -p channels/stable channels/beta
+          if [ -n "$stable" ]; then
+            pub=$(curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              "https://api.github.com/repos/${REPO}/releases/tags/${stable}" | jq -r '.published_at')
+            PUB_DATE="$pub" python3 tools/generate-manifests.py stage "$stable" stable channels/stable "$MIRROR_BASE"
+          fi
+          if [ -n "$beta" ]; then
+            pub=$(curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              "https://api.github.com/repos/${REPO}/releases/tags/${beta}" | jq -r '.published_at')
+            PUB_DATE="$pub" python3 tools/generate-manifests.py stage "$beta" beta channels/beta "$MIRROR_BASE"
+          fi
           ls -l channels/stable channels/beta
 
       - name: Upload to OSS
@@ -141,9 +132,6 @@ jobs:
           "$RCLONE" copy channels/beta "oss:${OSS_BUCKET}/updates/beta" \
             --checksum --retries 5 --retries-sleep 10s --stats-one-line \
             --header-upload "Cache-Control: public, max-age=60"
-          "$RCLONE" copy channels/archive "oss:${OSS_BUCKET}/updates/archive" \
-            --checksum --retries 5 --retries-sleep 10s --stats-one-line \
-            --header-upload "Cache-Control: public, max-age=31536000, immutable"
 
       - name: Prune old binaries
         run: |
@@ -159,10 +147,7 @@ jobs:
           while read -r dir; do
             [ -n "$dir" ] || continue
             grep -qx "$dir" keep.txt && continue
-            echo "prune binaries of ${dir}"
-            # Manifests survive so old clients still resolve; only the heavy
-            # installers go away.
-            "$RCLONE" delete "oss:${OSS_BUCKET}/releases/${dir}" \
-              --include "*.{dmg,exe,msi,deb,rpm,apk,hap,sig,gz}" --min-age 1h
+            echo "prune ${dir}"
+            "$RCLONE" purge "oss:${OSS_BUCKET}/releases/${dir}"
           done < remote.txt
           echo "kept:"; cat keep.txt
