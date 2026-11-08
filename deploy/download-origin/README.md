@@ -6,6 +6,22 @@
 用户 → ESA（dl.aeoform.com，边缘缓存）→ ECS nginx（proxy_cache）→ OSS 内网端点
 ```
 
+## 运行模式
+
+这台机器上**只跑 nginx**，没有定时任务、没有本地镜像、没有 watcher：
+
+```
+用户 → ESA → ECS nginx（proxy_cache 12G）→ OSS 内网端点（免外网流量）
+```
+
+第一次下载某个文件时 nginx 从 OSS 内网拉取并落盘，之后直接命中本地缓存。
+`apply.sh proxy` 安装这个配置，并顺手卸掉旧的 sync/watch timer（如果存在）。
+
+`apply.sh static` 是旧模式（本地镜像 + 定时同步），保留作为兜底。
+
+bucket 必须允许匿名 GET（公共读），否则 nginx 回源会 403；写入仍由 CI 的
+RAM 子账号完成。
+
 ## 保留策略
 
 OSS 里保留**最新 3 个正式版 + 3 个预发布版**的 tag 目录（`mirror-release.yml` 每 2 小时对齐并清理更旧的），
@@ -53,15 +69,12 @@ OSS 里保留**最新 3 个正式版 + 3 个预发布版**的 tag 目录（`mirr
 
 ## ECS 现状
 
-模板与开关脚本已经放到服务器上，尚未启用（等 bucket 名）：
-
 ```
-/root/openless-dl/nginx.conf.template
-/root/openless-dl/apply.sh          # apply.sh <bucket>
-/var/cache/openless-dl/             # 缓存目录，8 G 上限
+/root/openless-dl/apply.sh          # apply.sh [proxy|static]
+/root/openless-dl/nginx.proxy.conf  # 按需回源 OSS + 本地缓存
+/root/openless-dl/nginx.static.conf # 本地镜像模式（旧）
+/var/cache/openless-dl/             # proxy 模式缓存目录，12 G 上限
 ```
-
-bucket 建好后执行 `bash /root/openless-dl/apply.sh <bucket>` 即完成安装、`nginx -t` 与 reload。
 
 ## ECS 安装（手工参考）
 
