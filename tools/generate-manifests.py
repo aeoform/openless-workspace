@@ -87,7 +87,8 @@ def main() -> int:
             "signature": signature,
         }
         body = json.dumps(document, ensure_ascii=False, indent=2) + "\n"
-        for name in (f"latest-{target}.json", f"latest-{target}-mirror.json"):
+        stem = f"latest-{target}-beta" if channel == "beta" else f"latest-{target}"
+        for name in (f"{stem}.json", f"{stem}-mirror.json"):
             with open(os.path.join(out_dir, name), "w", encoding="utf-8") as fh:
                 fh.write(body)
             written += 1
