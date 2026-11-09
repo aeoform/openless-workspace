@@ -22,7 +22,15 @@ function sizeLabel(bytes: number | null): string {
   return bytes ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : "";
 }
 
-function Row({ entry, beta = false }: { entry: PlatformOption; beta?: boolean }) {
+function Row({
+  entry,
+  beta = false,
+  channelVersion = null,
+}: {
+  entry: PlatformOption;
+  beta?: boolean;
+  channelVersion?: string | null;
+}) {
   const { t } = useI18n();
   const pending = !entry.href;
 
@@ -31,6 +39,9 @@ function Row({ entry, beta = false }: { entry: PlatformOption; beta?: boolean })
       <div className="pg-row-main">
         <span className="pg-row-arch">{entry.arch}</span>
         {entry.recommended && <span className="pg-badge">{t.platforms.recommended}</span>}
+        {entry.version && entry.version !== channelVersion && (
+          <span className="pg-version ol-mono">{entry.version}</span>
+        )}
         {beta && <span className="pg-badge is-beta">{t.platforms.beta}</span>}
       </div>
       <div className="pg-row-side">
@@ -54,10 +65,12 @@ function PlatformCard({
   group,
   items,
   beta,
+  channelVersion,
 }: {
   group: Group;
   items: PlatformOption[];
   beta: boolean;
+  channelVersion?: string | null;
 }) {
   const { t } = useI18n();
   const Icon = ICONS[group];
@@ -76,7 +89,9 @@ function PlatformCard({
       {items.length === 0 ? (
         <p className="pg-pending-block">{pendingText}</p>
       ) : (
-        items.map((entry) => <Row key={entry.key} entry={entry} beta={beta} />)
+        items.map((entry) => (
+          <Row key={entry.key} entry={entry} beta={beta} channelVersion={channelVersion} />
+        ))
       )}
     </section>
   );
@@ -165,13 +180,25 @@ export function DownloadView() {
 
           <div className="ol-container pg-grid" hidden={beta}>
             {stableGroups.map(({ group, items }) => (
-              <PlatformCard key={group} group={group} items={items} beta={false} />
+              <PlatformCard
+                key={group}
+                group={group}
+                items={items}
+                beta={false}
+                channelVersion={version}
+              />
             ))}
           </div>
 
           <div className="ol-container pg-grid" hidden={!beta}>
             {betaGroups.map(({ group, items }) => (
-              <PlatformCard key={`beta-${group}`} group={group} items={items} beta />
+              <PlatformCard
+                key={`beta-${group}`}
+                group={group}
+                items={items}
+                beta
+                channelVersion={betaVersion}
+              />
             ))}
           </div>
 
@@ -201,6 +228,7 @@ export function DownloadView() {
         .pg-row-arch { font-size: 14px; color: var(--ol-ink); }
         .pg-row-side { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
         .pg-size { font-size: 11.5px; color: var(--ol-muted-2); }
+        .pg-version { font-size: 10.5px; color: var(--ol-muted-2); }
         .pg-badge { font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: var(--ol-blue); color: #fff; }
         .pg-pending { font-size: 11.5px; color: var(--ol-muted-2); }
         .pg-pending-block { margin: 0; color: var(--ol-muted); font-size: 13.5px; line-height: 1.6; }

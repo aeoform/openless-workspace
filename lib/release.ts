@@ -16,7 +16,15 @@ export type AssetSlot =
   | "harmony"
   | "checksums";
 
-export type ReleaseAsset = { name: string; url: string; size: number };
+export type ReleaseAsset = {
+  name: string;
+  url: string;
+  size: number;
+  /** Tag this asset actually came from; older than the channel when the newest
+   *  release dropped that platform. */
+  tag?: string | null;
+  version?: string | null;
+};
 
 /** One channel (stable or pre-release) of the upstream repository. */
 export type ReleaseChannel = {
@@ -48,6 +56,8 @@ export type PlatformOption = {
   href: string | null;
   size: number | null;
   recommended: boolean;
+  /** Set when the asset comes from an older release than the channel headline. */
+  version?: string | null;
 };
 
 let snapshot: ReleaseInfo | null = staticRelease;
@@ -169,9 +179,10 @@ function option(
     os,
     arch,
     group,
-    href: asset ? assetUrl(asset.name, release?.tag, mirror) : null,
+    href: asset ? assetUrl(asset.name, asset.tag ?? release?.tag, mirror) : null,
     size: asset?.size ?? null,
     recommended: false,
+    version: asset?.version ?? null,
   };
 }
 
@@ -213,9 +224,10 @@ function harmonyOption(release: ReleaseInfo | null, mirror: boolean): PlatformOp
     os: "HarmonyOS",
     arch: asset?.name.includes("arm64") ? "arm64 · .hap" : "universal · .hap",
     group: "harmony",
-    href: asset ? assetUrl(asset.name, release?.tag, mirror) : null,
+    href: asset ? assetUrl(asset.name, asset.tag ?? release?.tag, mirror) : null,
     size: asset?.size ?? null,
     recommended: false,
+    version: asset?.version ?? null,
   };
 }
 
@@ -310,9 +322,10 @@ export function useDownloadState(): DownloadState {
         os,
         arch,
         group,
-        href: assetUrl(asset.name, betaTag, mirror),
+        href: assetUrl(asset.name, asset.tag ?? betaTag, mirror),
         size: asset.size ?? null,
         recommended: stableHrefs.get(group) ? false : matchesSlot({ key } as PlatformOption, betaWanted),
+        version: asset.version ?? null,
       },
     ];
   });
@@ -329,9 +342,10 @@ export function useDownloadState(): DownloadState {
       os: "HarmonyOS",
       arch: betaHarmony.name.includes("arm64") ? "arm64 · .hap" : "universal · .hap",
       group: "harmony",
-      href: assetUrl(betaHarmony.name, betaTag, mirror),
+      href: assetUrl(betaHarmony.name, betaHarmony.tag ?? betaTag, mirror),
       size: betaHarmony.size ?? null,
       recommended: false,
+      version: betaHarmony.version ?? null,
     });
   }
 

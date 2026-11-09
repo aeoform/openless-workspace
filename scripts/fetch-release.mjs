@@ -76,14 +76,22 @@ async function github(path) {
   return response.json();
 }
 
-function pickAssets(release) {
+function pickAssets(release, tag = release.tag_name, version = cleanVersion(release.tag_name)) {
   const candidates = new Map();
   for (const asset of release.assets ?? []) {
     const slot = classify(asset.name);
     if (!slot) continue;
     const current = candidates.get(slot);
     if (!current || score(asset.name) > score(current.name)) {
-      candidates.set(slot, { name: asset.name, url: asset.browser_download_url, size: asset.size });
+      // `tag`/`version` travel with the asset: a platform can come from an older
+      // pre-release when the newest one dropped it.
+      candidates.set(slot, {
+        name: asset.name,
+        url: asset.browser_download_url,
+        size: asset.size,
+        tag,
+        version,
+      });
     }
   }
   return Object.fromEntries(candidates);
@@ -101,13 +109,36 @@ function describe(release) {
   };
 }
 
+/** Newest first; drafts have no publish date, so fall back to creation time. */
+function byDateDesc(a, b) {
+  const at = a.published_at ?? a.created_at ?? "";
+  const bt = b.published_at ?? b.created_at ?? "";
+  return bt.localeCompare(at);
+}
+
 async function fetchChannels() {
-  const releases = await github("/releases?per_page=30");
-  const published = releases.filter((release) => !release.draft);
-  const stable = published.find((release) => !release.prerelease) ?? null;
-  const beta =
-    published.find((release) => release.prerelease && !/^v?1\./i.test(release.tag_name)) ?? null;
-  return { stable, beta };
+  const releases = (await github("/releases?per_page=30")).filter((release) => !release.draft);
+  const stables = releases.filter((release) => !release.prerelease).sort(byDateDesc);
+  const betas = releases
+    .filter((release) => release.prerelease && !/^v?1\./i.test(release.tag_name))
+    .sort(byDateDesc);
+  return { stable: stables[0] ?? null, betas };
+}
+
+/**
+ * Newer pre-releases sometimes drop a platform (2.0.2 Beta.6 ships no Linux
+ * build at all). Fill each missing slot from the newest pre-release that still
+ * has it, keeping the providing tag on the asset so links stay correct.
+ */
+function mergeBetaAssets(betas) {
+  const merged = {};
+  for (const release of betas.slice(0, 4)) {
+    const version = cleanVersion(release.tag_name);
+    for (const [slot, asset] of Object.entries(pickAssets(release))) {
+      if (!merged[slot]) merged[slot] = { ...asset, tag: release.tag_name, version };
+    }
+  }
+  return merged;
 }
 
 async function existing() {
@@ -148,7 +179,8 @@ async function main() {
     return;
   }
 
-  const { stable, beta } = channels;
+  const { stable, betas } = channels;
+  const beta = betas[0] ?? null;
   if (!stable) throw new Error("no stable release returned by GitHub");
 
   const payload = {
@@ -156,7 +188,9 @@ async function main() {
     ...describe(stable),
     fetchedAt: new Date().toISOString(),
     source: "github-api",
-    beta: beta ? describe(beta) : null,
+    beta: beta
+      ? { ...describe(beta), assets: mergeBetaAssets(betas) }
+      : null,
   };
   delete payload.prerelase;
 

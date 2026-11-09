@@ -133,6 +133,23 @@ jobs:
             --checksum --retries 5 --retries-sleep 10s --stats-one-line \
             --header-upload "Cache-Control: public, max-age=60"
 
+      # Best effort: pull the freshly published payloads through the CDN once so
+      # the first real visitor is a cache hit instead of an origin fetch.
+      - name: Prewarm the edge cache
+        continue-on-error: true
+        env:
+          MIRROR_BASE: ${{ env.MIRROR_BASE }}
+        run: |
+          set -euo pipefail
+          urls=$(grep -ho '"url": *"[^"]*"' channels/*/*.json | cut -d'"' -f4 | sort -u | head -20)
+          test -n "$urls" || { echo "no manifest urls to prewarm"; exit 0; }
+          ok=0; fail=0
+          while read -r url; do
+            code=$(curl -s -o /dev/null -m 300 -w "%{http_code}" "$url" || echo 000)
+            case "$code" in 200|206) ok=$((ok+1)) ;; *) fail=$((fail+1)); echo "  ! $code $url" ;; esac
+          done <<< "$urls"
+          echo "prewarmed $ok url(s), $fail failure(s)"
+
       - name: Prune old binaries
         run: |
           set -euo pipefail
