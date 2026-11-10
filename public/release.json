@@ -70,7 +70,7 @@
       "version": "2.0.1"
     }
   },
-  "fetchedAt": "2026-11-10T07:28:00.019Z",
+  "fetchedAt": "2026-11-10T19:50:47.693Z",
   "source": "github-api",
   "beta": {
     "tag": "v2.0.2-Beta.6-tauri",
@@ -129,6 +129,13 @@
         "tag": "v2.0.2-Beta.6-tauri",
         "version": "2.0.2-Beta.6"
       },
+      "harmonyArm": {
+        "name": "OpenLess_harmony_arm64.hap",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.6-tauri/OpenLess_harmony_arm64.hap",
+        "size": 65167919,
+        "tag": "v2.0.2-Beta.6-tauri",
+        "version": "2.0.2-Beta.6"
+      },
       "harmony": {
         "name": "OpenLess_harmony.hap",
         "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.6-tauri/OpenLess_harmony.hap",
@@ -140,13 +147,6 @@
         "name": "SHA256SUMS",
         "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.6-tauri/SHA256SUMS",
         "size": 184,
-        "tag": "v2.0.2-Beta.6-tauri",
-        "version": "2.0.2-Beta.6"
-      },
-      "harmonyArm": {
-        "name": "OpenLess_harmony_arm64.hap",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.6-tauri/OpenLess_harmony_arm64.hap",
-        "size": 65167919,
         "tag": "v2.0.2-Beta.6-tauri",
         "version": "2.0.2-Beta.6"
       },
