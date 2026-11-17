@@ -1,76 +1,83 @@
 {
   "repo": "Open-Less/openless",
-  "tag": "v2.0.1-tauri",
-  "version": "2.0.1",
-  "name": "OpenLess 2.0.1+build.20261016",
-  "publishedAt": "2026-10-16T12:40:48Z",
-  "htmlUrl": "https://github.com/Open-Less/openless/releases/tag/v2.0.1-tauri",
+  "tag": "v2.0.2-tauri",
+  "version": "2.0.2",
+  "name": "OpenLess 2.0.2+build.20261115",
+  "publishedAt": "2026-11-17T08:59:36Z",
+  "htmlUrl": "https://github.com/Open-Less/openless/releases/tag/v2.0.2-tauri",
   "assets": {
-    "macosArm": {
-      "name": "OpenLess_2.0.1+build.20261016_aarch64.dmg",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_aarch64.dmg",
-      "size": 28983090,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
-    "androidX86_64": {
-      "name": "OpenLess_2.0.1+build.20261016_x86_64.apk",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x86_64.apk",
-      "size": 33545006,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
-    "androidArm64": {
-      "name": "OpenLess_2.0.1+build.20261016_arm64-v8a.apk",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_arm64-v8a.apk",
-      "size": 30286493,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
-    "androidArmv7": {
-      "name": "OpenLess_2.0.1+build.20261016_armeabi-v7a.apk",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_armeabi-v7a.apk",
-      "size": 23960463,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
-    "androidX86": {
-      "name": "OpenLess_2.0.1+build.20261016_x86.apk",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x86.apk",
-      "size": 35457359,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
-    "macosIntel": {
-      "name": "OpenLess_2.0.1+build.20261016_x64.dmg",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x64.dmg",
-      "size": 29719413,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
-    "windowsMSI": {
-      "name": "OpenLess_2.0.1+build.20261016_x64_en-US.msi",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x64_en-US.msi",
-      "size": 23003136,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
-    "windowsX64": {
-      "name": "OpenLess_2.0.1+build.20261016_x64-setup.exe",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/OpenLess_2.0.1%2Bbuild.20261016_x64-setup.exe",
-      "size": 16346253,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
-    },
     "checksums": {
       "name": "SHA256SUMS",
-      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.1-tauri/SHA256SUMS",
-      "size": 3155,
-      "tag": "v2.0.1-tauri",
-      "version": "2.0.1"
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/SHA256SUMS",
+      "size": 95,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "harmonyArm": {
+      "name": "OpenLess_harmony_arm64.hap",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_harmony_arm64.hap",
+      "size": 65168468,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "androidX86": {
+      "name": "OpenLess_2.0.2+build.20261115_x86.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_x86.apk",
+      "size": 113634847,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "androidArm64": {
+      "name": "OpenLess_2.0.2+build.20261115_arm64-v8a.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_arm64-v8a.apk",
+      "size": 144228701,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "androidArmv7": {
+      "name": "OpenLess_2.0.2+build.20261115_armeabi-v7a.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_armeabi-v7a.apk",
+      "size": 100244411,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "androidX86_64": {
+      "name": "OpenLess_2.0.2+build.20261115_x86_64.apk",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_x86_64.apk",
+      "size": 118732160,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "macosArm": {
+      "name": "OpenLess_2.0.2+build.20261115_aarch64.dmg",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_aarch64.dmg",
+      "size": 38851427,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "windowsMSI": {
+      "name": "OpenLess_2.0.2+build.20261115_x64_en-US.msi",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_x64_en-US.msi",
+      "size": 32759808,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "macosIntel": {
+      "name": "OpenLess_2.0.2+build.20261115_x64.dmg",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_x64.dmg",
+      "size": 40218271,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
+    },
+    "windowsX64": {
+      "name": "OpenLess_2.0.2+build.20261115_x64-setup.exe",
+      "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-tauri/OpenLess_2.0.2%2Bbuild.20261115_x64-setup.exe",
+      "size": 24988936,
+      "tag": "v2.0.2-tauri",
+      "version": "2.0.2"
     }
   },
-  "fetchedAt": "2026-11-17T08:04:45.244Z",
+  "fetchedAt": "2026-11-17T21:02:41.503Z",
   "source": "github-api",
   "beta": {
     "tag": "v2.0.2-Beta.7-tauri",
