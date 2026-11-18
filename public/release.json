@@ -77,78 +77,78 @@
       "version": "2.0.2"
     }
   },
-  "fetchedAt": "2026-11-18T07:40:22.523Z",
+  "fetchedAt": "2026-11-18T20:40:25.064Z",
   "source": "github-api",
   "beta": {
-    "tag": "v2.0.2-Beta.7-tauri",
-    "version": "2.0.2-Beta.7",
-    "name": "OpenLess v2.0.2-Beta.7-tauri",
-    "publishedAt": "2026-11-13T15:45:34Z",
-    "htmlUrl": "https://github.com/Open-Less/openless/releases/tag/v2.0.2-Beta.7-tauri",
+    "tag": "v2.0.3-Beta.1-tauri",
+    "version": "2.0.3-Beta.1",
+    "name": "OpenLess v2.0.3-Beta.1-tauri",
+    "publishedAt": "2026-11-18T16:27:57Z",
+    "htmlUrl": "https://github.com/Open-Less/openless/releases/tag/v2.0.3-Beta.1-tauri",
     "prerelase": true,
     "assets": {
-      "checksums": {
-        "name": "SHA256SUMS",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/SHA256SUMS",
-        "size": 95,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
-      },
       "harmonyArm": {
         "name": "OpenLess_harmony_arm64.hap",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_harmony_arm64.hap",
-        "size": 65168483,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_harmony_arm64.hap",
+        "size": 65411111,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
       },
-      "androidX86_64": {
-        "name": "OpenLess_2.0.2-Beta.7+build.20261113-6a7b5bb_x86_64.apk",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_2.0.2-Beta.7%2Bbuild.20261113-6a7b5bb_x86_64.apk",
-        "size": 118732184,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
-      },
-      "androidArmv7": {
-        "name": "OpenLess_2.0.2-Beta.7+build.20261113-6a7b5bb_armeabi-v7a.apk",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_2.0.2-Beta.7%2Bbuild.20261113-6a7b5bb_armeabi-v7a.apk",
-        "size": 100244435,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
-      },
-      "androidX86": {
-        "name": "OpenLess_2.0.2-Beta.7+build.20261113-6a7b5bb_x86.apk",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_2.0.2-Beta.7%2Bbuild.20261113-6a7b5bb_x86.apk",
-        "size": 113634875,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
+      "checksums": {
+        "name": "SHA256SUMS",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/SHA256SUMS",
+        "size": 95,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
       },
       "androidArm64": {
-        "name": "OpenLess_2.0.2-Beta.7+build.20261113-6a7b5bb_arm64-v8a.apk",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_2.0.2-Beta.7%2Bbuild.20261113-6a7b5bb_arm64-v8a.apk",
-        "size": 144228729,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
+        "name": "OpenLess_2.0.3-Beta.1_arm64-v8a.apk",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_2.0.3-Beta.1_arm64-v8a.apk",
+        "size": 144834905,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
+      },
+      "androidArmv7": {
+        "name": "OpenLess_2.0.3-Beta.1_armeabi-v7a.apk",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_2.0.3-Beta.1_armeabi-v7a.apk",
+        "size": 100686771,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
+      },
+      "androidX86": {
+        "name": "OpenLess_2.0.3-Beta.1_x86.apk",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_2.0.3-Beta.1_x86.apk",
+        "size": 114355735,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
+      },
+      "androidX86_64": {
+        "name": "OpenLess_2.0.3-Beta.1_x86_64.apk",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_2.0.3-Beta.1_x86_64.apk",
+        "size": 119403896,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
       },
       "windowsX64": {
-        "name": "OpenLess_2.0.2-Beta.7+build.20261113-6a7b5bb_x64-setup.exe",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_2.0.2-Beta.7%2Bbuild.20261113-6a7b5bb_x64-setup.exe",
-        "size": 24984208,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
+        "name": "OpenLess_2.0.3-Beta.1_x64-setup.exe",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_2.0.3-Beta.1_x64-setup.exe",
+        "size": 25251197,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
       },
       "macosIntel": {
-        "name": "OpenLess_2.0.2-Beta.7+build.20261113-6a7b5bb_x64.dmg",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_2.0.2-Beta.7%2Bbuild.20261113-6a7b5bb_x64.dmg",
-        "size": 40207509,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
+        "name": "OpenLess_2.0.3-Beta.1_x64.dmg",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_2.0.3-Beta.1_x64.dmg",
+        "size": 40670142,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
       },
       "macosArm": {
-        "name": "OpenLess_2.0.2-Beta.7+build.20261113-6a7b5bb_aarch64.dmg",
-        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.2-Beta.7-tauri/OpenLess_2.0.2-Beta.7%2Bbuild.20261113-6a7b5bb_aarch64.dmg",
-        "size": 38851672,
-        "tag": "v2.0.2-Beta.7-tauri",
-        "version": "2.0.2-Beta.7"
+        "name": "OpenLess_2.0.3-Beta.1_aarch64.dmg",
+        "url": "https://github.com/Open-Less/openless/releases/download/v2.0.3-Beta.1-tauri/OpenLess_2.0.3-Beta.1_aarch64.dmg",
+        "size": 39324435,
+        "tag": "v2.0.3-Beta.1-tauri",
+        "version": "2.0.3-Beta.1"
       },
       "harmony": {
         "name": "OpenLess_harmony.hap",
