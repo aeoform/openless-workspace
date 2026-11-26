@@ -19,6 +19,18 @@ Next.js 静态官网，中英文切换和浏览器动画不依赖服务端。风
 
 手动刷新快照：`pnpm release:sync`。
 
+## Release 镜像同步归属
+
+OSS 安装包镜像与 Stable／Beta 更新清单的生成迁至主仓库 `Open-Less/openless`：
+
+- 主仓库 PR：https://github.com/Open-Less/openless/pull/1426
+- workflow：`.github/workflows/mirror-release.yml`
+- 实现：`openless-all/app/scripts/mirror-release.py`
+- 主仓库需配置 `OSS_BUCKET`、`OSS_ACCESS_KEY_ID`、`OSS_ACCESS_KEY_SECRET`；GitHub Secrets 的值无法从本仓库读回，需由凭据持有者重新配置。
+- 新签名格式为每个 Release 一份 `updater-signatures.json`；镜像任务同时支持历史独立 `.sig`。先校验和上传安装包，再更新滚动清单，不清理已有历史对象。
+
+**切换顺序：先合并主仓库变更、配置凭据并验证一次同步，再合并本站停用旧镜像任务的变更。** 本仓库继续负责页面部署和 `release.json` 快照，不再承担 OSS 写入或更新清单发布。
+
 ## 构建
 
 使用 Node.js 24 和 pnpm 11.27.1：

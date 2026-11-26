@@ -42,14 +42,14 @@ function classify(name) {
 }
 
 /**
- * Releases ship both `OpenLess_2.0.1+build.20261016_aarch64.dmg` and a stable
- * `OpenLess_macos_aarch64.dmg` alias. Prefer the alias: it survives version
- * bumps and is what the mirror and the download page should point at.
+ * New releases publish only canonical installers, not duplicate website aliases.
+ * Prefer versioned originals when historical releases still contain both names;
+ * keep accepting aliases so old release snapshots remain usable.
  */
 function score(name) {
   let value = 0;
-  if (!/\+build\./i.test(name)) value += 2;
-  if (/^OpenLess_(macos|windows|linux|android)_/i.test(name)) value += 2;
+  if (/^OpenLess_\d/i.test(name)) value += 4;
+  if (/\+build\./i.test(name)) value += 2;
   value -= name.length / 1000;
   return value;
 }
